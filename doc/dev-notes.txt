@@ -1,0 +1,8 @@
+persistence
+map
+motion
+player character
+visibility
+inventory/equipping and using items
+class system
+character stats and upgrading them/ experience
