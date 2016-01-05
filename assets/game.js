@@ -10,30 +10,92 @@ window.onload = function() {
 
         // Add the containers to our HTML page
         document.getElementById('wsrl-main-display').appendChild(   Game.getDisplay('main').getContainer());
+        document.getElementById('wsrl-avatar-display').appendChild(   Game.getDisplay('avatar').getContainer());
+        document.getElementById('wsrl-message-display').appendChild(   Game.getDisplay('message').getContainer());
+
+        Game.Message.sendMessage("Message");
     }
 };
 
 var Game = {
   DISPLAYS: {
+    avatar: {
+      w:28,
+      h:24,
+      o: null
+    },
     main: {
       w: 80,
       h: 24,
       o: null
+    },
+    message: {
+      w: 100,
+      h:6,
+      o:null
     }
   },
-
+  _curUIMode: null,
   init: function() {
     console.log("WRSL Live Initialization");
-    this.DISPLAYS.main.o = new ROT.Display({width:Game.DISPLAYS.main.w, height:Game.DISPLAYS.main.h});
-    this.renderMain();
+    //this.DISPLAYS.main.o = new ROT.Display({width:Game.DISPLAYS.main.w, height:Game.DISPLAYS.main.h});
+    for (var displayName in this.DISPLAYS) {
+      if (this.DISPLAYS.hasOwnProperty(displayName)) {
+        this.DISPLAYS[displayName].o = new ROT.Display({width:this.DISPLAYS[displayName].w, height:this.DISPLAYS[displayName].h});
+      }
+    }
+    Game.switchUIMode(Game.UIMode.gameStart);
+    this.renderAll();
+
+    var bindEventToUiMode = function(event) {
+        window.addEventListener(event, function(e) {
+            if (Game._curUIMode !== null) {
+                Game._curUIMode.handleInput(event, e);
+            }
+        });
+    };
+    bindEventToUiMode('keypress');
+    bindEventToUiMode('keydown');
   },
   getDisplay: function(displayName){
     return Game.DISPLAYS[displayName].o;
   },
+  renderAll: function(){
+    this.renderMain();
+    this.renderAvatar();
+    this.renderMessage();
+  },
   renderMain: function() {
-    for (var i = 0; i < 5; i++) {
-      this.DISPLAYS.main.o.drawText(2, 3+i, "Literally Anything LLC");
+    if (this._curUIMode.hasOwnProperty('renderOnMain')){
+      this._curUIMode.renderOnMain(this.DISPLAYS.main.o);
+    }else{
+      for (var i = 0; i < 5; i++) {
+        this.DISPLAYS.main.o.drawText(2, 3+i, "Literally Anything LLC");
+      }
     }
-
-  }
+  },
+  renderAvatar: function() {
+    this.DISPLAYS.avatar.o.drawText(2, 3, "Avatar");
+  },
+  renderMessage: function() {
+    //this.DISPLAYS.avatar.o.drawText(2, 3, "Message");
+    Game.Message.renderOn(this.DISPLAYS.message.o);
+  },
+  switchUIMode: function(newMode){
+    if (this._curUIMode !== null) {
+      this._curUIMode.exit();
+    }
+    this._curUIMode = newMode;
+    if (this._curUIMode !== null) {
+      this._curUIMode.enter();
+      this._curUIMode.renderOnMain(this.DISPLAYS.main.o);
+    }
+  },
+   eventHandler: function(eventType, evt){
+     console.log(eventType);
+     console.dir(evt);
+     if (this._curUIMode !== null){
+       this._curUIMode.handleInput(eventType, evt);
+     }
+   }
 };
