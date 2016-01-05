@@ -26,11 +26,18 @@ Game.UIMode.gamePlay = {
       console.log("Game.UIMode.gameStart handleIndput");
       console.log(eventType);
       console.dir(evt);
+      if (eventType == 'keypress'){
+        if (evt.keyCode == 13){
+          Game.switchUIMode(Game.UIMode.gameWin);
+        }
+      }else if (eventType == 'keydown' && evt.keyCode == 27) {
+        Game.switchUIMode(Game.UIMode.gameLose);
+      }
     },
     renderOnMain: function(display){
       console.log("Game.UIMode.gameStart rendrOnMain");
       display.clear();
-      display.drawText("Press [ENTER] to win, [ESC] to lose.");
+      display.drawText(0, 0, "Press [ENTER] to win, [ESC] to lose.");
     }
 };
 Game.UIMode.gameWin = {
@@ -45,6 +52,8 @@ Game.UIMode.gameWin = {
     },
     renderOnMain: function(display){
       console.log("Game.UIMode.gameStart rendrOnMain");
+      display.clear();
+      display.drawText(0, 0, "You win!");
     }
 };
 Game.UIMode.gameLose = {
@@ -59,5 +68,7 @@ Game.UIMode.gameLose = {
     },
     renderOnMain: function(display){
       console.log("Game.UIMode.gameStart rendrOnMain");
+      display.clear();
+      display.drawText(0, 0, "You lose!");
     }
 };

@@ -20,7 +20,7 @@ window.onload = function() {
 var Game = {
   DISPLAYS: {
     avatar: {
-      w:28,
+      w:20,
       h:24,
       o: null
     },
