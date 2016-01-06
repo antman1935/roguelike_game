@@ -1,22 +1,22 @@
 Game.UIMode = {};
 Game.UIMode.gamePersistence = {
     enter: function(){
-      console.log("Game.UIMode.gameStart enter");
+      console.log("Game.UIMode.gamePersistence enter");
     },
     exit: function() {
-      console.log("Game.UIMode.gameStart exit");
+      console.log("Game.UIMode.gamePersistence exit");
     },
     handleInput: function(eventType, evt){
       console.log(eventType);
       console.dir(evt);
       if (eventType == 'keypress'){
-        if (evt.keyCode == 115){
+        if (evt.keyCode == ROT.VK_S){
           console.log("save");
           this.saveGame();
-        }else if (evt.keyCode == 108){
+        }else if (evt.keyCode == ROT.VK_L){
           console.log("load");
           this.restoreGame();
-        }else if (evt.keyCode == 110){
+        }else if (evt.keyCode == ROT.VK_N){
           console.log("new game");
           this.newGame();
         }
@@ -52,7 +52,7 @@ Game.UIMode.gamePersistence = {
   	   }
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gameStart rendrOnMain");
+      console.log("Game.UIMode.gamePersistence rendrOnMain");
       display.clear();
       display.drawText(0, 0, "Press S to save your game, L to load a game, or N to start a new one.");
     }
@@ -75,13 +75,13 @@ Game.UIMode.gameStart = {
 };
 Game.UIMode.gamePlay = {
     enter: function(){
-      console.log("Game.UIMode.gameStart enter");
+      console.log("Game.UIMode.gamePlay enter");
     },
     exit: function() {
-      console.log("Game.UIMode.gameStart exit");
+      console.log("Game.UIMode.gamePlay exit");
     },
     handleInput: function(eventType, evt){
-      console.log("Game.UIMode.gameStart handleIndput");
+      console.log("Game.UIMode.gamePlay handleIndput");
       console.log(eventType);
       console.dir(evt);
       if (eventType == 'keypress'){
@@ -95,7 +95,7 @@ Game.UIMode.gamePlay = {
       }
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gameStart rendrOnMain");
+      console.log("Game.UIMode.gamePlay rendrOnMain");
       display.clear();
       display.drawText(0, 0, "Press [ENTER] to win.");
       display.drawText(0, 1, "Press [ESC] to lose.");
@@ -104,16 +104,16 @@ Game.UIMode.gamePlay = {
 };
 Game.UIMode.gameWin = {
     enter: function(){
-      console.log("Game.UIMode.gameStart enter");
+      console.log("Game.UIMode.gameWin enter");
     },
     exit: function() {
-      console.log("Game.UIMode.gameStart exit");
+      console.log("Game.UIMode.gameWin exit");
     },
     handleInput: function(){
-      console.log("Game.UIMode.gameStart handleIndput");
+      console.log("Game.UIMode.gameWin handleIndput");
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gameStart rendrOnMain");
+      console.log("Game.UIMode.gameWin rendrOnMain");
       display.clear();
       display.drawText(0, 0, "You win!");
     }

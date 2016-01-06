@@ -102,8 +102,8 @@ var Game = {
     }
   },
    eventHandler: function(eventType, evt){
-     console.log(eventType);
-     console.dir(evt);
+    //  console.log(eventType);
+    //  console.dir(evt);
      if (this._curUIMode !== null){
        this._curUIMode.handleInput(eventType, evt);
      }
