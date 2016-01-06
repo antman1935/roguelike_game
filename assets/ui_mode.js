@@ -74,11 +74,25 @@ Game.UIMode.gameStart = {
     }
 };
 Game.UIMode.gamePlay = {
+    attr: {
+      _map: null,
+      _mapWidth: 300,
+      _mapHeight: 200,
+      _cameraX: 100,
+      _cameraY: 100,
+      _avatarX: 100,
+      _avatarY: 100
+    },
+    JSON_KEY: 'uiMode_gamePlay',
+
     enter: function(){
       console.log("Game.UIMode.gamePlay enter");
+      // Game.Message.clear();
+      // Game.refresh();
     },
     exit: function() {
       console.log("Game.UIMode.gamePlay exit");
+      // Game.refresh();
     },
     handleInput: function(eventType, evt){
       console.log("Game.UIMode.gamePlay handleIndput");
@@ -100,6 +114,30 @@ Game.UIMode.gamePlay = {
       display.drawText(0, 0, "Press [ENTER] to win.");
       display.drawText(0, 1, "Press [ESC] to lose.");
       display.drawText(0, 2, "Press [=] to enter the save/load menu.");
+    },
+    setupPLay: function(restorationData){
+      var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
+      var generator = new ROT.Map.Cellular(this.attr._mapWidth,this.attr._mapHeight);
+      generator.randomize(0.5);
+
+      var totalIterations = 3;
+      for (var i = 0; i < totalIterations - 1; i++) {
+        generator.create();
+      }
+
+      generator.create(function(x,y,v) {
+        if (v === 1) {
+          mapTiles[x][y] = Game.Tile.floorTile;
+        } else {
+          mapTiles[x][y] = Game.Tile.wallTile;
+        }
+      });
+
+      this.attr._map = new Game.Map(mapTiles);
+
+      if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
+        this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
+      }
     }
 };
 Game.UIMode.gameWin = {
