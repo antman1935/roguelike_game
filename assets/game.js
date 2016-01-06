@@ -18,6 +18,8 @@ window.onload = function() {
 };
 
 var Game = {
+  _PERSISTENCE_NAMESPACE: 'tbrlgame',
+
   DISPLAYS: {
     avatar: {
       w:20,
@@ -35,8 +37,16 @@ var Game = {
       o:null
     }
   },
+
+  _game: null,
+  _randomSeed: 0,
   _curUIMode: null,
+
   init: function() {
+    this._game = this;
+
+    Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform() * 100000));
+
     console.log("WRSL Live Initialization");
     //this.DISPLAYS.main.o = new ROT.Display({width:Game.DISPLAYS.main.w, height:Game.DISPLAYS.main.h});
     for (var displayName in this.DISPLAYS) {
@@ -97,5 +107,17 @@ var Game = {
      if (this._curUIMode !== null){
        this._curUIMode.handleInput(eventType, evt);
      }
+   },
+   getRandomseed: function(){
+     return this._randomSeed;
+   },
+   setRandomSeed: function(s) {
+     this._randomSeed = s;
+     console.log("using seed " + this._randomSeed);
+     ROT.RNG.setSeed(this._randomSeed);
+   },
+   toJSON: function() {
+     var json = {"_randomSeed":this._randomSeed};
+     return json;
    }
 };
