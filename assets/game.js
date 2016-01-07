@@ -85,7 +85,13 @@ var Game = {
     }
   },
   renderAvatar: function() {
-    this.DISPLAYS.avatar.o.drawText(2, 3, "Avatar");
+    this.DISPLAYS.avatar.o.clear();
+    if (this._curUIMode == null) {
+      return;
+    }
+    if (this._curUIMode.hasOwnProperty('renderAvatarInfo')) {
+      this._curUIMode.renderAvatarInfo(this.DISPLAYS.avatar.o);
+    }
   },
   renderMessage: function() {
     //this.DISPLAYS.avatar.o.drawText(2, 3, "Message");
@@ -118,6 +124,7 @@ var Game = {
    },
    toJSON: function() {
      var json = {"_randomSeed":this._randomSeed};
+     json[Game.UIMode.gamePlay.JSON_KEY] = Game.UIMode.gamePlay.toJSON();
      return json;
    }
 };

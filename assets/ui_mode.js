@@ -1,4 +1,8 @@
 Game.UIMode = {};
+Game.UIMode.DEFAULT_COLOR_FG = '#fff';
+Game.UIMode.DEFAULT_COLOR_BG = '#000';
+Game.UIMode.DEFAULT_COLOR_STR = '%c{'+Game.UIMode.DEFAULT_COLOR_FG+'}%b{'+Game.UIMode.DEFAULT_COLOR_BG+'}';
+
 Game.UIMode.gamePersistence = {
     enter: function(){
       console.log("Game.UIMode.gamePersistence enter");
@@ -22,7 +26,7 @@ Game.UIMode.gamePersistence = {
         }
       }
     },
-    saveGame: function(){
+    saveGame: function(json_state_data){
       if (this.localStorageAvailable()){
         window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game._game));
         Game.switchUIMode(Game.UIMode.gamePlay);
@@ -33,11 +37,13 @@ Game.UIMode.gamePersistence = {
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
         Game.setRandomSeed(state_data._randomSeed);
+        Game.UIMode.gamePlay.setupPlay(state_data);
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
     newGame: function () {
       Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform() * 100000));
+      Game.UIMode.gamePlay.setupPlay();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
@@ -47,7 +53,7 @@ Game.UIMode.gamePersistence = {
   		   window.localStorage.removeItem(x);
          return true;
   	   } catch(e) {
-         Game.Message.send('Sorry, no local data storage is available for this browser');
+         Game.Message.sendMessage('Sorry, no local data storage is available for this browser');
   		   return false;
   	   }
     },
@@ -60,17 +66,23 @@ Game.UIMode.gamePersistence = {
 Game.UIMode.gameStart = {
     enter: function(){
       console.log("Game.UIMode.gameStart enter");
+      Game.Message.sendMessage("Welcome to possibly the best rouge-like game. Ever.");
+      Game.renderAll();
     },
     exit: function() {
       console.log("Game.UIMode.gameStart exit");
+      Game.renderAll();
     },
     handleInput: function(eventTpe, evt){
       console.log("Game.UIMode.gameStart handleIndput");
+      Game.UIMode.gamePlay.setupPlay();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     renderOnMain: function(display){
       console.log("Game.UIMode.gameStart rendrOnMain");
-      display.drawText(0, 0, "Press any key to begin.");
+      var fg = Game.UIMode.DEFAULT_COLOR_FG;
+      var bg = Game.UIMode.DEFAULT_COLOR_BG;
+      display.drawText(0, 0, "Press any key to begin.", fg, bg);
     }
 };
 Game.UIMode.gamePlay = {
@@ -87,35 +99,97 @@ Game.UIMode.gamePlay = {
 
     enter: function(){
       console.log("Game.UIMode.gamePlay enter");
-      // Game.Message.clear();
-      // Game.refresh();
+      Game.Message.clearMessages();
+      Game.renderAll();
     },
     exit: function() {
       console.log("Game.UIMode.gamePlay exit");
-      // Game.refresh();
+      Game.renderAll();
     },
     handleInput: function(eventType, evt){
       console.log("Game.UIMode.gamePlay handleIndput");
       console.log(eventType);
       console.dir(evt);
+      var pressedKey = String.fromCharCode(evt.charCode);
+      Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
+      var dx = 0;
+      var dy = 0;
       if (eventType == 'keypress'){
         if (evt.keyCode == 13){
           Game.switchUIMode(Game.UIMode.gameWin);
         }else if (evt.keyCode == 61){
           Game.switchUIMode(Game.UIMode.gamePersistence);
+        }else if (evt.keyCode == ROT.VK_1){
+          dx = -1;
+          dy = 1;
+        }else if (evt.keyCode == ROT.VK_2){
+          dy = 1;
+        }else if (evt.keyCode == ROT.VK_3){
+          dx = 1;
+          dy = 1;
+        }else if (evt.keyCode == ROT.VK_4){
+          dx = -1;
+        }else if (evt.keyCode == ROT.VK_6){
+          dx = 1;
+        }else if (evt.keyCode == ROT.VK_7){
+          dx = -1;
+          dy = -1;
+        }else if (evt.keyCode == ROT.VK_8){
+          dy = -1;
+        }else if (evt.keyCode == ROT.VK_1){
+          dx = 1;
+          dy = -1;
         }
+
+        if (dx != 0 || dy != 0) {
+          if (this.attr._map.getTile(this.attr._avatarX + dx, this.attr._avatarY + dy) == Game.Tile.floorTile){
+            this.moveAvatar(dx, dy);
+          }else{
+            Game.Message.sendMessage("You can't move there.");
+          }
+        }
+
+        Game.renderAll();
       }else if (eventType == 'keydown' && evt.keyCode == 27) {
         Game.switchUIMode(Game.UIMode.gameLose);
       }
     },
     renderOnMain: function(display){
       console.log("Game.UIMode.gamePlay rendrOnMain");
-      display.clear();
-      display.drawText(0, 0, "Press [ENTER] to win.");
-      display.drawText(0, 1, "Press [ESC] to lose.");
-      display.drawText(0, 2, "Press [=] to enter the save/load menu.");
+      var fg = Game.UIMode.DEFAULT_COLOR_FG;
+      var bg = Game.UIMode.DEFAULT_COLOR_BG;
+      this.attr._map.renderOn(display, this.attr._cameraX, this.attr._cameraY);
+      display.drawText(0, 0, "Press [ENTER] to win.", fg, bg);
+      display.drawText(0, 1, "Press [ESC] to lose.", fg, bg);
+      display.drawText(0, 2, "Press [=] to enter the save/load menu.", fg, bg);
+      this.renderAvatar(display);
     },
-    setupPLay: function(restorationData){
+    renderAvatar: function(display) {
+      Game.Symbol.AVATAR.draw(display,this.attr._avatarX-this.attr._cameraX+display._options.width/2,
+                                    this.attr._avatarY-this.attr._cameraY+display._options.height/2);
+    },
+    renderAvatarInfo: function (display) {
+      var fg = Game.UIMode.DEFAULT_COLOR_FG;
+      var bg = Game.UIMode.DEFAULT_COLOR_BG;
+      display.drawText(1,2,"avatar x: "+this.attr._avatarX,fg,bg);
+      display.drawText(1,3,"avatar y: "+this.attr._avatarY,fg,bg);
+    },
+    moveAvatar: function (dx,dy) {
+      this.attr._avatarX = Math.min(Math.max(0,this.attr._avatarX + dx),this.attr._mapWidth);
+      this.attr._avatarY = Math.min(Math.max(0,this.attr._avatarY + dy),this.attr._mapHeight);
+      this.setCameraToAvatar();
+    },
+    moveCamera: function (dx,dy) {
+      this.setCamera(this.attr._cameraX + dx,this.attr._cameraY + dy);
+    },
+    setCamera: function (sx,sy) {
+      this.attr._cameraX = Math.min(Math.max(0,sx),this.attr._mapWidth);
+      this.attr._cameraY = Math.min(Math.max(0,sy),this.attr._mapHeight);
+    },
+    setCameraToAvatar: function () {
+      this.setCamera(this.attr._avatarX,this.attr._avatarY);
+    },
+    setupPlay: function(restorationData){
       var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
       var generator = new ROT.Map.Cellular(this.attr._mapWidth,this.attr._mapHeight);
       generator.randomize(0.5);
@@ -137,6 +211,22 @@ Game.UIMode.gamePlay = {
 
       if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
         this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
+      }
+    },
+    toJSON: function() {
+      var json = {};
+      for (var at in this.attr) {
+        if (this.attr.hasOwnProperty(at) && at!='_map') {
+          json[at] = this.attr[at];
+        }
+      }
+      return json;
+    },
+    fromJSON: function (json) {
+      for (var at in this.attr) {
+        if (this.attr.hasOwnProperty(at) && at!='_map') {
+          this.attr[at] = json[at];
+        }
       }
     }
 };

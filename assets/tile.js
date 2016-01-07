@@ -8,7 +8,7 @@ Game.Tile = function (name,symbol) {
 Game.Tile.prototype.getSymbol = function() {
   return this.attr._sym;
 };
-Game.Tile.getName = function() {
+Game.Tile.prototype.getName = function() {
   return this.attr.name;
 };
 
