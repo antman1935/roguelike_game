@@ -86,7 +86,7 @@ var Game = {
   },
   renderAvatar: function() {
     this.DISPLAYS.avatar.o.clear();
-    if (this._curUIMode == null) {
+    if (this._curUIMode === null) {
       return;
     }
     if (this._curUIMode.hasOwnProperty('renderAvatarInfo')) {

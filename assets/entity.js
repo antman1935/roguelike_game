@@ -1,10 +1,10 @@
-Game.Entity = function(properties){
-  properties = properties || {};
-  Game.Symbol.call(this, properties);
+Game.Entity = function(template){
+  template = template || {};
+  Game.Symbol.call(this, template);
   if (!('attr' in this)) { this.attr = {}; }
-  this.attr._name = properties.name || '';
-  this.attr._x = properties.x || 0;
-  this.attr._y = properties.y || 0;
+  this.attr._name = template.name || '';
+  this.attr._x = template.x || 0;
+  this.attr._y = template.y || 0;
 
   this._entityID = Game.util.randomString(32);
   Game.ALL_ENTITIES[this._entityID] = this;
