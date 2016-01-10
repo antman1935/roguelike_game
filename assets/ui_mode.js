@@ -139,14 +139,16 @@ Game.UIMode.gamePlay = {
           dx = 1;
           dy = -1;
         }
-
-        if (dx !== 0 || dy !== 0) {
-          if (this.attr._map.getTile(this.attr._avatar.getX() + dx, this.attr._avatar.getY() + dy).isWalkable()){
-            this.moveAvatar(dx, dy);
-          }else{
-            Game.Message.sendMessage("You can't move there.");
-          }
+        if (dx !== 0 || dy !== 0){
+          this.moveAvatar(dx, dy);
         }
+        // if (dx !== 0 || dy !== 0) {
+        //   if (this.attr._map.getTile(this.attr._avatar.getX() + dx, this.attr._avatar.getY() + dy).isWalkable()){
+        //     this.moveAvatar(dx, dy);
+        //   }else{
+        //
+        //   }
+        // }
 
         Game.renderAll();
       }else if (eventType == 'keydown' && evt.keyCode == 27) {
@@ -174,8 +176,11 @@ Game.UIMode.gamePlay = {
       display.drawText(1,3,"avatar y: "+this.attr._avatar.getY(),fg,bg);
     },
     moveAvatar: function (dx,dy) {
-      this.attr._avatar.setX(Math.min(Math.max(0,this.attr._avatar.getX() + dx),this.attr._mapWidth));
-      this.attr._avatar.setY(Math.min(Math.max(0,this.attr._avatar.getY() + dy),this.attr._mapHeight));
+      if (!(this.attr._avatar.tryWalk(this.attr._map, dx, dy))){
+        Game.Message.sendMessage("You can't move there.");
+      }
+      // this.attr._avatar.setX(Math.min(Math.max(0,this.attr._avatar.getX() + dx),this.attr._mapWidth));
+      // this.attr._avatar.setY(Math.min(Math.max(0,this.attr._avatar.getY() + dy),this.attr._mapHeight));
       this.setCameraToAvatar();
     },
     moveCamera: function (dx,dy) {

@@ -8,9 +8,35 @@ Game.Entity = function(template){
 
   this._entityID = Game.util.randomString(32);
   Game.ALL_ENTITIES[this._entityID] = this;
+
+  this._mixinTracker = {};
+  console.dir(template);
+  if (template.hasOwnProperty('mixins')){
+    console.dir(template.mixins);
+    for (var i = 0; i < template.mixins.length; i++) {
+      var mixin = template.mixins[i];
+      console.dir(mixin);
+      this._mixinTracker[mixin.META.mixinName] = true;
+      this._mixinTracker[mixin.META.mixinGroup] = true;
+      for (var mixinProp in mixinProp != 'META' && mixin){
+        if (mixinProp != 'META' && mixin.hasOwnProperty(mixinProp)){
+          this[mixinProp] = mixin[mixinProp];
+        }
+      }
+      if (mixin.META.hasOwnProperty('init')){
+        mixin.META.init.call(this, template);
+      }
+    }
+  }
 };
 Game.Entity.extend(Game.Symbol);
-
+Game.Entity.prototype.hasMixin = function(mixin){
+  if (typeof mixin == 'object'){
+    return this._mixinTracker.hasOwnProperty(mixin.META.mixinName);
+  }else{
+    return this._mixinTracker.hasOwnProperty(mixin);
+  }
+}
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
 };
