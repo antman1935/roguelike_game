@@ -17,7 +17,7 @@ Game.EntityMixin.WalkerCorporeal = {
     }
     return false;
   }
-}
+};
 Game.EntityMixin.Chronicle = {
   META: {
     mixinName: 'Chronicle',
@@ -69,4 +69,4 @@ Game.EntityMixin.HitPoints = {
   recoverHits: function(amt){
     this.attr._HitPoints_attr.curHp = Math.min(this.attr._HitPoints_attr.curHp + amt, this.attr._HitPoints_attr.maxHp);
   }
-}
+};

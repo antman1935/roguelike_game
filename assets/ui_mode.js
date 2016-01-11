@@ -83,8 +83,9 @@ Game.UIMode.gamePersistence = {
       var using_state_hash = state_hash_name  || 'attr';
       for (var at in this[using_state_hash]) {
         if (this[using_state_hash].hasOwnProperty(at)) {
-          if (this[using_state_hash][at] instanceof Object && 'fromJSON' in this[using_state_hash]){
-            this[using_state_hash][at].fromJSON[at];
+          if ((this[using_state_hash][at] instanceof Object) &&
+                 ('fromJSON' in this[using_state_hash][at])) {
+            this[using_state_hash][at].fromJSON(json[at]);
           }else{
             this[using_state_hash][at] = json[at];
           }
@@ -203,6 +204,7 @@ Game.UIMode.gamePlay = {
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
       display.drawText(1,2,"avatar x: "+this.attr._avatar.getX(),fg,bg);
       display.drawText(1,3,"avatar y: "+this.attr._avatar.getY(),fg,bg);
+      display.drawText(1,4,"Turns taken: " + this.attr._avatar.getTurns());
     },
     moveAvatar: function (dx,dy) {
       if (!(this.attr._avatar.tryWalk(this.attr._map, dx, dy))){
@@ -241,13 +243,13 @@ Game.UIMode.gamePlay = {
       });
 
       this.attr._map = new Game.Map(mapTiles);
-
       this.attr._avatar = new Game.Entity(Game.EntityTemplates.Avatar);
-      this.attr._avatar.setPos(100, 100);
 
       if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
-        this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
-      }
+       this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
+     }else{
+       this.attr._avatar.setPos(this.attr._map.getRandomWalkableLocation());
+     }
 
       this.setCameraToAvatar();
     },

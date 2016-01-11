@@ -45,7 +45,7 @@ Game.Entity.prototype.hasMixin = function(mixin){
   }else{
     return this._mixinTracker.hasOwnProperty(mixin);
   }
-}
+};
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
 };
