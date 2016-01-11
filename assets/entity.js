@@ -9,10 +9,11 @@ Game.Entity = function(template){
   this._entityID = Game.util.randomString(32);
   Game.ALL_ENTITIES[this._entityID] = this;
 
+  this._mixins = template.mixins || [];
   this._mixinTracker = {};
   console.dir(template);
   if (template.hasOwnProperty('mixins')){
-    console.dir(template.mixins);
+    console.dir(this._mixins);
     for (var i = 0; i < template.mixins.length; i++) {
       var mixin = template.mixins[i];
       console.dir(mixin);
@@ -21,6 +22,14 @@ Game.Entity = function(template){
       for (var mixinProp in mixinProp != 'META' && mixin){
         if (mixinProp != 'META' && mixin.hasOwnProperty(mixinProp)){
           this[mixinProp] = mixin[mixinProp];
+        }
+      }
+      if (mixin.META.hasOwnProperty('stateNamespace')){
+        this.attr[mixin.META.stateNamespace] = {};
+        for (var mixinStateProp in mixin.META.stateModel) {
+          if (mixin.META.stateModel.hasOwnProperty(mixinStateProp)) {
+            this.attr[mixin.META.stateNamespace][mixinStateProp] = mixin.META.stateModel[mixinStateProp];
+          }
         }
       }
       if (mixin.META.hasOwnProperty('init')){
@@ -53,6 +62,7 @@ Game.Entity.prototype.setPos = function(x_or_xy,y) {
   }
 };
 Game.Entity.prototype.getX = function() {
+    console.log("GetX Working");
     return this.attr._x;
 };
 Game.Entity.prototype.setX = function(x) {
@@ -66,26 +76,27 @@ Game.Entity.prototype.getY   = function() {
 };
 
 Game.Entity.prototype.toJSON = function () {
-  var json = {};
-  for (var at in this.attr) {
-    if (this.attr.hasOwnProperty(at)) {
-      if (this.attr[at] instanceof Object && 'toJSON' in this.attr[at]) {
-        json[at] = this.attr[at].toJSON();
-      } else {
-        json[at] = this.attr[at];
-      }
-    }
-  }
+  var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
+  // for (var at in this.attr) {
+  //   if (this.attr.hasOwnProperty(at)) {
+  //     if (this.attr[at] instanceof Object && 'toJSON' in this.attr[at]) {
+  //       json[at] = this.attr[at].toJSON();
+  //     } else {
+  //       json[at] = this.attr[at];
+  //     }
+  //   }
+  // }
   return json;
 };
 Game.Entity.prototype.fromJSON = function (json) {
-  for (var at in this.attr) {
-    if (this.attr.hasOwnProperty(at)) {
-      if (this.attr[at] instanceof Object && 'fromJSON' in this.attr[at]) {
-        this.attr[at].fromJSON(json[at]);
-      } else {
-        this.attr[at] = json[at];
-      }
-    }
-  }
+  // for (var at in this.attr) {
+  //   if (this.attr.hasOwnProperty(at)) {
+  //     if (this.attr[at] instanceof Object && 'fromJSON' in this.attr[at]) {
+  //       this.attr[at].fromJSON(json[at]);
+  //     } else {
+  //       this.attr[at] = json[at];
+  //     }
+  //   }
+  // }
+  Game.UIMode.gamePersistence.BASE_fromJSON.call(this, json);
 };
