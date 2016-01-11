@@ -8,6 +8,7 @@ Game.Generator = function(genName, constructorFunction, defaultTemplate){
 Game.Generator.prototype.learn = function (nameOfTemplate, template){
   console.log("I'm learning " + nameOfTemplate);
   this._templates[nameOfTemplate] = template;
+  console.dir(this._templates);
 };
 
 Game.Generator.prototype.create = function(nameOfTemplate){
