@@ -9,6 +9,8 @@ Game.Entity = function(template){
   this._entityID = Game.util.randomString(32);
   Game.ALL_ENTITIES[this._entityID] = this;
 
+  this._map = null;
+
   this._mixins = template.mixins || [];
   this._mixinTracker = {};
   console.dir(template);
@@ -46,11 +48,23 @@ Game.Entity.prototype.hasMixin = function(mixin){
     return this._mixinTracker.hasOwnProperty(mixin);
   }
 };
+Game.Entity.prototype.getId = function(){
+  return this._entityID;
+}
+Game.Entity.prototype.getMap = function(){
+  return this._map;
+}
+Game.Entity.prototype.setMap = function(map){
+  this._map = map;
+}
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
 };
 Game.Entity.prototype.setName = function(name) {
     this.attr._name = name;
+};
+Game.Entity.prototype.getPos = function(){
+  return {x:this.attr._x, y:this.attr._y};
 };
 Game.Entity.prototype.setPos = function(x_or_xy,y) {
   if (typeof x_or_xy == 'object') {
