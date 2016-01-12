@@ -1,11 +1,17 @@
+Game.DATASTORE.MAP = {};
+
 Game.Map = function (tilesGrid) {
+  this._tiles = tilesGrid;
+
   this.attr = {
-    _tiles: tilesGrid,
+    _id: Game.util.randomString(32),
     _width: tilesGrid.length,
     _height: tilesGrid[0].length,
     _entitiesByLocation: {},
     _locationsByEntity: {}
   };
+
+  Game.DATASTORE.MAP[this.attr._id] = this;
 };
 
 
@@ -26,7 +32,7 @@ Game.Map.prototype.getTile = function (x_or_xy,y) {
   if ((useX<0) || (useX >= this.attr._width) || (useY<0) || (useY>= this.attr._height)) {
     return Game.Tile.nullTile;
   }
-  return this.attr._tiles[useX][useY] || Game.Tile.nullTile;
+  return this._tiles[useX][useY] || Game.Tile.nullTile;
 };
 
 Game.Map.prototype.renderOn = function (display,camX,camY) {
@@ -71,7 +77,7 @@ Game.Map.prototype.getRandomWalkableLocation = function(){
 };
 
 Game.Map.prototype.addEntity = function (ent, pos) {
-  this.attr._entitiesByLocation[pos.x+","+pos.y] = ent;
+  this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
   this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
   ent.setMap(this);
 };
@@ -82,7 +88,7 @@ Game.Map.prototype.updateEntityLocation = function(ent){
     this.attr._entitiesByLocation[origLoc] = undefined;
   }
   var pos = ent.getPos();
-  this.attr._entitiesByLocation[pos.x+","+pos.y] = ent;
+  this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
   this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
 };
 
@@ -92,7 +98,9 @@ Game.Map.prototype.getEntity = function (x_or_xy, y){
     useY = useX.y;
     useX = useX.x;
   }
-  return this.attr._entitiesByLocation[useX+','+useY] || false;
+  var entId = this.attr._entitiesByLocation[useX+","+useY];
+  return entId ? Game.DATASTORE.ENTITY[entId] : false;
+  // return this.attr._entitiesByLocation[useX+','+useY] || false;
 };
 
 Game.Map.prototype.toJSON = function(){

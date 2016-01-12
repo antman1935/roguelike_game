@@ -1,4 +1,3 @@
-console.log("hello console (Y'all ready for this?)");
 window.onload = function() {
     console.log("starting WSRL - window loaded");
     // Check if rot.js can work on this browser
@@ -41,6 +40,8 @@ var Game = {
   _game: null,
   _randomSeed: 0,
   _curUIMode: null,
+
+  DATASTORE: {},
 
   init: function() {
     this._game = this;
