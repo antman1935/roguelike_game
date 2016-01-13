@@ -51,7 +51,6 @@ Game.UIMode.gamePersistence = {
             console.log("restoring map " +mapId+ " with attributes");
             console.dir(mapAttr);
             Game.DATASTORE.MAP[mapId] = new Game.Map(mapAttr._mapTileSetName);
-            //Game.DATASTORE.MAP[mapId].attr = mapAttr;
             Game.DATASTORE.MAP[mapId].fromJSON(state_data.MAP[mapId]);
           }
         }
@@ -70,7 +69,7 @@ Game.UIMode.gamePersistence = {
       }
     },
     newGame: function () {
-      Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform() * 100000));
+      Game.setRandomSeed(5 + Math.floor(Game.TRANSIENT_RNG.getUniform() * 100000));
       Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
