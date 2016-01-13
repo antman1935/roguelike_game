@@ -121,11 +121,12 @@ var Game = {
    setRandomSeed: function(s) {
      this._randomSeed = s;
      console.log("using seed " + this._randomSeed);
+     this.DATASTORE[Game.UIMode.gamePersistence.RANDOM_SEED_KEY] = this._randomSeed;
      ROT.RNG.setSeed(this._randomSeed);
-   },
-   toJSON: function() {
-     var json = {"_randomSeed":this._randomSeed};
-     json[Game.UIMode.gamePlay.JSON_KEY] = Game.UIMode.gamePlay.toJSON();
-     return json;
    }
+  //  toJSON: function() {
+  //    var json = {"_randomSeed":this._randomSeed};
+  //    json[Game.UIMode.gamePlay.JSON_KEY] = Game.UIMode.gamePlay.toJSON();
+  //    return json;
+  //  }
 };

@@ -26,9 +26,10 @@ Game.UIMode.gamePersistence = {
         }
       }
     },
-    saveGame: function(json_state_data){
+    saveGame: function(){
       if (this.localStorageAvailable()){
-        window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game._game));
+        Game.DATASTORE.GAME_PLAY = Game.UIMode.gamePlay.attr;
+        window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game.DATASTORE));
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
@@ -36,14 +37,41 @@ Game.UIMode.gamePersistence = {
       if (this.localStorageAvailable()){
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
-        Game.setRandomSeed(state_data._randomSeed);
-        Game.UIMode.gamePlay.setupPlay(state_data);
+
+        console.log('state_data:');
+        console.dir(state_data);
+
+        //game level
+        Game.setRandomSeed(state_data[this.RANDOM_SEED_KEY]);
+
+        //map restoration
+        for (var mapId in state_data.MAP) {
+          if (state_data.MAP.hasOwnProperty(mapId)) {
+            var mapAttr = JSON.parse(state_data.MAP[mapId]);
+            console.log("restoring map " +mapId+ " with attributes");
+            console.dir(mapAttr);
+            Game.DATASTORE.MAP[mapId] = new Game.Map(mapAttr._mapTileSetName);
+            //Game.DATASTORE.MAP[mapId].attr = mapAttr;
+            Game.DATASTORE.MAP[mapId].fromJSON(state_data.MAP[mapId]);
+          }
+        }
+
+        //entity restoration
+        for (var entityId in state_data.ENTITY) {
+          if (state_data.ENTITY.hasOwnProperty(entityId)) {
+            var entAttr = JSON.parse(state_data.ENTITY[entityId]);
+            Game.DATASTORE.ENTITY[entityId] = Game.EntityGenerator.create(entAttr._generator_template_key);
+            Game.DATASTORE.ENTITY[entityId].fromJSON(state_data.ENTITY[entityId]); // restores entity attr
+          }
+        }
+
+        Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
     newGame: function () {
       Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform() * 100000));
-      Game.UIMode.gamePlay.setupPlay();
+      Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
@@ -67,30 +95,31 @@ Game.UIMode.gamePersistence = {
       if (state_hash_name){
         state = this[state_hash_name];
       }
-      var json = {};
-      for (var at in state) {
-        if (state.hasOwnProperty(at)) {
-          if (state[at] instanceof Object && 'toJSON' in state[at]){
-            json[at] = state[at].toJSON();
-          }else{
-            json[at] = state[at];
-          }
-        }
-      }
+      var json = JSON.stringify(state);
+      // for (var at in state) {
+      //   if (state.hasOwnProperty(at)) {
+      //     if (state[at] instanceof Object && 'toJSON' in state[at]){
+      //       json[at] = state[at].toJSON();
+      //     }else{
+      //       json[at] = state[at];
+      //     }
+      //   }
+      // }
       return json;
     },
     BASE_fromJSON: function (json, state_hash_name){
       var using_state_hash = state_hash_name  || 'attr';
-      for (var at in this[using_state_hash]) {
-        if (this[using_state_hash].hasOwnProperty(at)) {
-          if ((this[using_state_hash][at] instanceof Object) &&
-                 ('fromJSON' in this[using_state_hash][at])) {
-            this[using_state_hash][at].fromJSON(json[at]);
-          }else{
-            this[using_state_hash][at] = json[at];
-          }
-        }
-      }
+      // for (var at in this[using_state_hash]) {
+      //   if (this[using_state_hash].hasOwnProperty(at)) {
+      //     if ((this[using_state_hash][at] instanceof Object) &&
+      //            ('fromJSON' in this[using_state_hash][at])) {
+      //       this[using_state_hash][at].fromJSON(json[at]);
+      //     }else{
+      //       this[using_state_hash][at] = json[at];
+      //     }
+      //   }
+      // }
+      this[using_state_hash] = JSON.parse(json);
     }
 };
 Game.UIMode.gameStart = {
@@ -105,7 +134,7 @@ Game.UIMode.gameStart = {
     },
     handleInput: function(eventTpe, evt){
       console.log("Game.UIMode.gameStart handleIndput");
-      Game.UIMode.gamePlay.setupPlay();
+      Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     renderOnMain: function(display){
@@ -117,23 +146,34 @@ Game.UIMode.gameStart = {
 };
 Game.UIMode.gamePlay = {
     attr: {
-      _map: null,
-      _mapWidth: 300,
-      _mapHeight: 200,
+      _mapId: '',
       _cameraX: 100,
       _cameraY: 100,
-      _avatar: null
+      _avatarId: ''
     },
     JSON_KEY: 'uiMode_gamePlay',
 
     enter: function(){
       console.log("Game.UIMode.gamePlay enter");
       Game.Message.clearMessages();
+      if (this.attr._avatarId){ this.setCameraToAvatar(); }
       Game.renderAll();
     },
     exit: function() {
       console.log("Game.UIMode.gamePlay exit");
       Game.renderAll();
+    },
+    getMap: function() {
+      return Game.DATASTORE.MAP[this.attr._mapId];;
+    },
+    setMap: function(m){
+      this.attr._mapId = m.getId();
+    },
+    getAvatar: function() {
+      return Game.DATASTORE.ENTITY[this.attr._avatarId];;
+    },
+    setAvatar: function(m){
+      this.attr._avatarId = m.getId();
     },
     handleInput: function(eventType, evt){
       console.log("Game.UIMode.gamePlay handleIndput");
@@ -189,7 +229,7 @@ Game.UIMode.gamePlay = {
       console.log("Game.UIMode.gamePlay rendrOnMain");
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      this.attr._map.renderOn(display, this.attr._cameraX, this.attr._cameraY);
+      this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY);
       display.drawText(0, 0, "Press [ENTER] to win.", fg, bg);
       display.drawText(0, 1, "Press [ESC] to lose.", fg, bg);
       display.drawText(0, 2, "Press [=] to enter the save/load menu.", fg, bg);
@@ -197,67 +237,41 @@ Game.UIMode.gamePlay = {
     renderAvatarInfo: function (display) {
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      display.drawText(1,2,"avatar x: "+this.attr._avatar.getX(),fg,bg);
-      display.drawText(1,3,"avatar y: "+this.attr._avatar.getY(),fg,bg);
-      display.drawText(1,4,"Health: " + this.attr._avatar.getCurHp() + "/" + this.attr._avatar.getMaxHp());
+      display.drawText(1,2,"avatar x: "+this.getAvatar().getX(),fg,bg);
+      display.drawText(1,3,"avatar y: "+this.getAvatar().getY(),fg,bg);
+      display.drawText(1,4,"Health: " + this.getAvatar().getCurHp() + "/" + this.getAvatar().getMaxHp());
       // display.drawText(1,5,"Stamina: " + this.getCurSp() + "/" + this.getMaxSp(); add stamina mixin for digging capabilities
-      display.drawText(1,6,"Turns taken: " + this.attr._avatar.getTurns());
+      display.drawText(1,6,"Turns taken: " + this.getAvatar().getTurns());
     },
     moveAvatar: function (dx,dy) {
-      if (!(this.attr._avatar.tryWalk(this.attr._map, dx, dy))){
+      if (!(this.getAvatar().tryWalk(this.getMap(), dx, dy))){
         Game.Message.sendMessage("You can't move there.");
       }
-      // this.attr._avatar.setX(Math.min(Math.max(0,this.attr._avatar.getX() + dx),this.attr._mapWidth));
-      // this.attr._avatar.setY(Math.min(Math.max(0,this.attr._avatar.getY() + dy),this.attr._mapHeight));
+      // this.getAvatar().setX(Math.min(Math.max(0,this.getAvatar().getX() + dx),this.attr._mapWidth));
+      // this.getAvatar().setY(Math.min(Math.max(0,this.getAvatar().getY() + dy),this.attr._mapHeight));
       this.setCameraToAvatar();
     },
     moveCamera: function (dx,dy) {
       this.setCamera(this.attr._cameraX + dx,this.attr._cameraY + dy);
     },
     setCamera: function (sx,sy) {
-      this.attr._cameraX = Math.min(Math.max(0,sx),this.attr._mapWidth);
-      this.attr._cameraY = Math.min(Math.max(0,sy),this.attr._mapHeight);
+      this.attr._cameraX = Math.min(Math.max(0,sx),this.getMap().getWidth());
+      this.attr._cameraY = Math.min(Math.max(0,sy),this.getMap().getHeight());
+      Game.renderAll();
     },
     setCameraToAvatar: function () {
-      this.setCamera(this.attr._avatar.getX(),this.attr._avatar.getY());
+      this.setCamera(this.getAvatar().getX(),this.getAvatar().getY());
     },
-    setupPlay: function(restorationData){
-      var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
-      var generator = new ROT.Map.Cellular(this.attr._mapWidth,this.attr._mapHeight);
-      generator.randomize(0.5);
-
-      var totalIterations = 3;
-      for (var i = 0; i < totalIterations - 1; i++) {
-        generator.create();
-      }
-
-      generator.create(function(x,y,v) {
-        if (v === 1) {
-          mapTiles[x][y] = Game.Tile.floorTile;
-        } else {
-          mapTiles[x][y] = Game.Tile.wallTile;
-        }
-      });
-
-      this.attr._map = new Game.Map(mapTiles);
-      this.attr._avatar = Game.EntityGenerator.create('avatar');
-      this.attr._avatar.setMap(this.attr._map);
-
-      if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
-       this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
-
-       //TODO: restore all entities
-       this.attr._map.updateEntityLocation(this.attr._avatar);
-     }else{
-       this.attr._avatar.setPos(this.attr._map.getRandomWalkableLocation());
-       this.attr._map.updateEntityLocation(this.attr._avatar);
-
-       for (var i = 0; i < 80; i++) {
-         this.attr._map.addEntity(Game.EntityGenerator.create('moss'),this.attr._map.getRandomWalkableLocation());
-       }
-     }
-
+    setupNewGame: function(){
+      this.setMap(new Game.Map('caves1'));
+      this.setAvatar(Game.EntityGenerator.create('avatar'));
+      this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
       this.setCameraToAvatar();
+
+      //make some enemies
+      for (var i = 0; i < 80; i++) {
+        this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
+      }
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);

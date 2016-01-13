@@ -1,12 +1,15 @@
 Game.DATASTORE.MAP = {};
 
-Game.Map = function (tilesGrid) {
-  this._tiles = tilesGrid;
+Game.Map = function (mapTileSetName) {
+  console.log("setting up new map using " +mapTileSetName+ " tile set");
+
+  this._tiles = Game.MapTileSets[mapTileSetName].getMapTiles();
 
   this.attr = {
     _id: Game.util.randomString(32),
-    _width: tilesGrid.length,
-    _height: tilesGrid[0].length,
+    _mapTileSetName: mapTileSetName,
+    _width: this._tiles.length,
+    _height: this._tiles[0].length,
     _entitiesByLocation: {},
     _locationsByEntity: {}
   };
@@ -14,6 +17,9 @@ Game.Map = function (tilesGrid) {
   Game.DATASTORE.MAP[this.attr._id] = this;
 };
 
+Game.Map.prototype.getId = function(){
+  return this.attr._id;
+};
 
 Game.Map.prototype.getWidth = function () {
   return this.attr._width;
@@ -80,6 +86,7 @@ Game.Map.prototype.addEntity = function (ent, pos) {
   this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
   this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
   ent.setMap(this);
+  ent.setPos(pos)
 };
 
 Game.Map.prototype.updateEntityLocation = function(ent){
@@ -104,9 +111,10 @@ Game.Map.prototype.getEntity = function (x_or_xy, y){
 };
 
 Game.Map.prototype.toJSON = function(){
-
+  var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
+  return json;
 };
 
-Game.Map.prototype.fromJSON = function(){
-
+Game.Map.prototype.fromJSON = function(json){
+  Game.UIMode.gamePersistence.BASE_fromJSON.call(this, json);
 };

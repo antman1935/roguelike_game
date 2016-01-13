@@ -8,11 +8,10 @@ Game.Entity = function(template){
   this.attr._x = template.x || 0;
   this.attr._y = template.y || 0;
   this.attr._generator_template_key = template.generator_template_key || '';
+  this.attr._mapId = null;
 
   this.attr._id = Game.util.randomString(32);
   Game.DATASTORE.ENTITY[this.attr._id] = this;
-
-  this._map = null;
 
   this._mixins = template.mixins || [];
   this._mixinTracker = {};
@@ -55,10 +54,10 @@ Game.Entity.prototype.getId = function(){
   return this.attr._id;
 }
 Game.Entity.prototype.getMap = function(){
-  return this._map;
+  return Game.DATASTORE.MAP[this.attr._mapId];
 }
 Game.Entity.prototype.setMap = function(map){
-  this._map = map;
+  this.attr._mapId = map.getId();
 }
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
@@ -94,26 +93,8 @@ Game.Entity.prototype.getY   = function() {
 
 Game.Entity.prototype.toJSON = function () {
   var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
-  // for (var at in this.attr) {
-  //   if (this.attr.hasOwnProperty(at)) {
-  //     if (this.attr[at] instanceof Object && 'toJSON' in this.attr[at]) {
-  //       json[at] = this.attr[at].toJSON();
-  //     } else {
-  //       json[at] = this.attr[at];
-  //     }
-  //   }
-  // }
   return json;
 };
 Game.Entity.prototype.fromJSON = function (json) {
-  // for (var at in this.attr) {
-  //   if (this.attr.hasOwnProperty(at)) {
-  //     if (this.attr[at] instanceof Object && 'fromJSON' in this.attr[at]) {
-  //       this.attr[at].fromJSON(json[at]);
-  //     } else {
-  //       this.attr[at] = json[at];
-  //     }
-  //   }
-  // }
   Game.UIMode.gamePersistence.BASE_fromJSON.call(this, json);
 };
