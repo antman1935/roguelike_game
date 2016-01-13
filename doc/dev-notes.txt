@@ -1,8 +1,63 @@
-persistence
-map
-motion
-player character
-visibility
-inventory/equipping and using items
-class system
-character stats and upgrading them/ experience
+Game Title:
+
+     The game starts off with the player spawned on level 1. To progress to the
+next level the player must kill enemies, which at the same time will earn them
+experience to be used on upgrading their character's traits and skills. To win,
+the player must defeat a currently unnamed enemy that will only spawn past
+level 10. From then on, the chance that [boss name] will spawn will increase by
+ten percent every time ten levels are finished. The player will be notified of
+[boss name]'s spawning, and more than likely they will try to avoid him until
+they feel ready to battle. So the game goes from simply attacking enemies and
+leveling up, to still trying to level up and avoiding near certain death, to
+finally chasing after [boss name]. To drive the middle stage of gameplay, the
+likelihood of survival will be displayed with the notification of [boss name]'s
+arrival.
+
+Things to implement:
+Digging system:
+  The maps generated can force the user into a space where they cannot advance,
+so the ability to dig out the walls of the cave is needed, but it must be
+limited. To do this I want to implement a Digger mixin that gives that ability
+(possibly to enemies as well?). To limit it, a stamina system can be implemented
+This could be done with a mixin similar to HitPoints. The rate at which stamina
+returns could be based on some kind of endurance trait of the entity.
+
+Inventory and enemy drops:
+Both of these things can be handled with a single mixin. When the player walks
+over the corpse of an enemy (a red 'X'), a prompt asking the user if he'd like
+to scavenge will appear. When the user accepts this prompt, a new ui mode will
+open displaying the contents of the the user's inventor on the right, and the
+enemy's inventory on the left, where every item will be labeled with sequential
+numbers so that they can be selected to be moved over. Storage of items in the
+mixin will be simply done with
+
+Action Messages(inspired by Brogue):
+On weapon items, store an action phrase (i.e. "slashed, bashed, axed") so that
+when the user attacks and is attacked, the message displays something like:
+  player_name slashed moss, -3hp
+  moss attacked you, -1hp
+
+Skill system:
+
+
+Ranged attacks:
+  Could be triggered with shift + numpad keys. Whether or not the enemy dodges
+the attack will be based on the skills of both the player and the enemy (need
+skill system now). The movement of the projectile will be animated by moving the
+projectile in the same direction by one until an enemy or a wall is hit.
+
+Item generator:
+  Basically a copy of the entity generator.
+
+
+Features wanted:
+Either a menu to trade or a town that is visitable between levels.
+Companion
+New enemies:
+  Goblins (fire damage, lasts for a few turns)
+  Trolls
+  Rats
+  Slugs (acid damage, lasts for a few turns)
+  Jackals
+  Synths (ranged attakers)
+Armor system
