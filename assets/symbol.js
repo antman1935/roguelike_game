@@ -1,5 +1,5 @@
 Game.Symbol = function (properties) {
-  console.log('creating new Symbol');
+  // console.log('creating new Symbol');
   properties = properties || {};
   if (! ('attr' in this)) { this.attr = {}; }
   this.attr._char = properties.chr || ' ';

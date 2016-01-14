@@ -40,7 +40,6 @@ Game.EntityMixin.Chronicle = {
         this.trackTurn();
       },
       'madeKill': function(evtData){
-        console.log('chronicle kill');
         this.addKill(evtData.entKilled)
       },
       'killed': function(evtData){
@@ -65,7 +64,6 @@ Game.EntityMixin.Chronicle = {
   },
   addKill: function(entKilled){
     var entName = entKilled.getName();
-    console.log('chronicle kill of ' +entName);
     if (this.attr._Chronicle_attr.killLog[entName]){
       this.attr._Chronicle_attr.killLog[entName]++;
     }else{
@@ -88,7 +86,6 @@ Game.EntityMixin.HitPoints = {
     },
     listeners: {
       'attacked': function(evtData){
-        console.log('HitPoints attacked');
 
         this.takeHits(evtData.attackPower);
         this.raiseEntityEvent('damagedBy', {damager:evtData.attacker, damageAmount:evtData.attackPower});
@@ -98,7 +95,6 @@ Game.EntityMixin.HitPoints = {
         }
       },
       'killed': function(evtData){
-        console.log('Hitpoints killed');
         this.destroy();
       }
     }
@@ -136,12 +132,62 @@ Game.EntityMixin.MeleeAttacker = {
     },
     listeners: {
       'bumpEntity': function(evtData){
-        console.log('MeleeAttacker bumpEntity');
         evtData.recipient.raiseEntityEvent('attacked', {attacker: evtData.actor, attackPower: this.getAttackPower()});
       }
     }
   },
   getAttackPower: function(){
       return this.attr._MeleeAttacker_attr.attackPower;
+  }
+};
+
+Game.EntityMixin.StaminaPoints = {
+  META: {
+    mixinName: 'StaminaPoints',
+    mixinGroup: 'StaminaPoints',
+    stateNamespace: '_StaminaPoints_attr',
+    stateModel: {
+      maxSp: 1,
+      curSp: 1
+    },
+    init: function (template){
+      this.attr._StaminaPoints_attr.maxSp = template.maxSp || 1;
+      this.attr._StaminaPoints_attr.curSp = template.curSP || this.attr._StaminaPoints_attr.maxSp;
+    },
+    listeners: {
+      'wait': function(evtData){
+        this.restoreStamina();
+        this.raiseEntityEvent('tookTurn');
+      },
+      'removeWall': function(evtData){
+        if (this.attr._StaminaPoints_attr.curSp){
+          this.decreaseStamina();
+          this.getMap().attr._removedWalls[evtData.wallPos.x+","+evtData.wallPos.y] = true;
+          this.raiseEntityEvent('tookTurn');
+        }else{
+          Game.Message.sendMessage("You're too tired to dig!")
+        }
+      }
+    }
+  },
+  getMaxSp: function(){
+    return this.attr._StaminaPoints_attr.maxSp;
+  },
+  setMaxSp: function(n){
+    this.attr._StaminaPoints_attr.maxSp = n;
+  },
+  getCurSp: function() {
+    return this.attr._StaminaPoints_attr.curSp;
+  },
+  setCurSp: function(n){
+    this.attr._StaminaPoints_attr.curSp = n;
+  },
+  decreaseStamina: function(){
+    this.attr._StaminaPoints_attr.curSp--;
+  },
+  restoreStamina: function(amt){
+    //eventually stamina regeneration will be based on entity attributes
+    this.attr._StaminaPoints_attr.curSp++;
+    this.attr._StaminaPoints_attr.curSp = Math.min(this.attr._StaminaPoints_attr.curSp, this.attr._StaminaPoints_attr.maxSp);
   }
 };

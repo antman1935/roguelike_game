@@ -15,12 +15,9 @@ Game.Entity = function(template){
 
   this._mixins = template.mixins || [];
   this._mixinTracker = {};
-  console.dir(template);
   if (template.hasOwnProperty('mixins')){
-    console.dir(this._mixins);
     for (var i = 0; i < template.mixins.length; i++) {
       var mixin = template.mixins[i];
-      console.dir(mixin);
       this._mixinTracker[mixin.META.mixinName] = true;
       this._mixinTracker[mixin.META.mixinGroup] = true;
       for (var mixinProp in mixinProp != 'META' && mixin){
@@ -95,7 +92,6 @@ Game.Entity.prototype.setPos = function(x_or_xy,y) {
   }
 };
 Game.Entity.prototype.getX = function() {
-    console.log("GetX Working");
     return this.attr._x;
 };
 Game.Entity.prototype.setX = function(x) {

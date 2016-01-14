@@ -1,7 +1,7 @@
 Game.DATASTORE.MAP = {};
 
 Game.Map = function (mapTileSetName) {
-  console.log("setting up new map using " +mapTileSetName+ " tile set");
+  // console.log("setting up new map using " +mapTileSetName+ " tile set");
 
   this._tiles = Game.MapTileSets[mapTileSetName].getMapTiles();
 
@@ -11,7 +11,8 @@ Game.Map = function (mapTileSetName) {
     _width: this._tiles.length,
     _height: this._tiles[0].length,
     _entitiesByLocation: {},
-    _locationsByEntity: {}
+    _locationsByEntity: {},
+    _removedWalls: {}
   };
 
   Game.DATASTORE.MAP[this.attr._id] = this;
@@ -38,6 +39,9 @@ Game.Map.prototype.getTile = function (x_or_xy,y) {
   if ((useX<0) || (useX >= this.attr._width) || (useY<0) || (useY>= this.attr._height)) {
     return Game.Tile.nullTile;
   }
+  if (this.attr._removedWalls[useX+","+useY]){
+    return Game.Tile.floorTile;
+  }
   return this._tiles[useX][useY] || Game.Tile.nullTile;
 };
 
@@ -55,6 +59,9 @@ Game.Map.prototype.renderOn = function (display,camX,camY) {
       var tile = this.getTile(mapPos);
       if (tile.getName() == 'nullTile') {
         tile = Game.Tile.wallTile;
+      }
+      if (this.attr._removedWalls[mapPos.x+","+mapPos.y]){
+        tile = Game.Tile.floorTile;
       }
       tile.draw(display,x,y);
       var ent = this.getEntity(mapPos);

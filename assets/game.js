@@ -1,5 +1,4 @@
 window.onload = function() {
-    console.log("starting WSRL - window loaded");
     // Check if rot.js can work on this browser
     if (!ROT.isSupported()) {
         alert("The rot.js library isn't supported by your browser.");
@@ -50,7 +49,6 @@ var Game = {
     this.TRANSIENT_RNG = ROT.RNG.clone();
     Game.setRandomSeed(5 + Math.floor(this.TRANSIENT_RNG.getUniform() * 100000));
 
-    console.log("WRSL Live Initialization");
     //this.DISPLAYS.main.o = new ROT.Display({width:Game.DISPLAYS.main.w, height:Game.DISPLAYS.main.h});
     for (var displayName in this.DISPLAYS) {
       if (this.DISPLAYS.hasOwnProperty(displayName)) {
@@ -122,7 +120,6 @@ var Game = {
    },
    setRandomSeed: function(s) {
      this._randomSeed = s;
-     console.log("using seed " + this._randomSeed);
      this.DATASTORE[Game.UIMode.gamePersistence.RANDOM_SEED_KEY] = this._randomSeed;
      ROT.RNG.setSeed(this._randomSeed);
    }

@@ -5,23 +5,23 @@ Game.UIMode.DEFAULT_COLOR_STR = '%c{'+Game.UIMode.DEFAULT_COLOR_FG+'}%b{'+Game.U
 
 Game.UIMode.gamePersistence = {
     enter: function(){
-      console.log("Game.UIMode.gamePersistence enter");
+      // console.log("Game.UIMode.gamePersistence enter");
     },
     exit: function() {
-      console.log("Game.UIMode.gamePersistence exit");
+      // console.log("Game.UIMode.gamePersistence exit");
     },
     handleInput: function(eventType, evt){
-      console.log(eventType);
-      console.dir(evt);
+      // console.log(eventType);
+      // console.dir(evt);
       if (eventType == 'keypress'){
         if (evt.keyCode == ROT.VK_S){
-          console.log("save");
+          // console.log("save");
           this.saveGame();
         }else if (evt.keyCode == ROT.VK_L){
-          console.log("load");
+          // console.log("load");
           this.restoreGame();
         }else if (evt.keyCode == ROT.VK_N){
-          console.log("new game");
+          // console.log("new game");
           this.newGame();
         }
       }
@@ -38,8 +38,8 @@ Game.UIMode.gamePersistence = {
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
 
-        console.log('state_data:');
-        console.dir(state_data);
+        // console.log('state_data:');
+        // console.dir(state_data);
 
         //game level
         Game.setRandomSeed(state_data[this.RANDOM_SEED_KEY]);
@@ -48,8 +48,8 @@ Game.UIMode.gamePersistence = {
         for (var mapId in state_data.MAP) {
           if (state_data.MAP.hasOwnProperty(mapId)) {
             var mapAttr = JSON.parse(state_data.MAP[mapId]);
-            console.log("restoring map " +mapId+ " with attributes");
-            console.dir(mapAttr);
+            // console.log("restoring map " +mapId+ " with attributes");
+            // console.dir(mapAttr);
             Game.DATASTORE.MAP[mapId] = new Game.Map(mapAttr._mapTileSetName);
             Game.DATASTORE.MAP[mapId].fromJSON(state_data.MAP[mapId]);
           }
@@ -85,7 +85,7 @@ Game.UIMode.gamePersistence = {
   	   }
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gamePersistence rendrOnMain");
+      // console.log("Game.UIMode.gamePersistence rendrOnMain");
       display.clear();
       display.drawText(0, 0, "Press S to save your game, L to load a game, or N to start a new one.");
     },
@@ -123,21 +123,21 @@ Game.UIMode.gamePersistence = {
 };
 Game.UIMode.gameStart = {
     enter: function(){
-      console.log("Game.UIMode.gameStart enter");
+      // console.log("Game.UIMode.gameStart enter");
       Game.Message.sendMessage("Welcome to possibly the best rouge-like game. Ever.");
       Game.renderAll();
     },
     exit: function() {
-      console.log("Game.UIMode.gameStart exit");
+      // console.log("Game.UIMode.gameStart exit");
       Game.renderAll();
     },
     handleInput: function(eventTpe, evt){
-      console.log("Game.UIMode.gameStart handleIndput");
+      // console.log("Game.UIMode.gameStart handleIndput");
       Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gameStart rendrOnMain");
+      // console.log("Game.UIMode.gameStart rendrOnMain");
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
       display.drawText(0, 0, "Press any key to begin.", fg, bg);
@@ -153,13 +153,13 @@ Game.UIMode.gamePlay = {
     JSON_KEY: 'uiMode_gamePlay',
 
     enter: function(){
-      console.log("Game.UIMode.gamePlay enter");
+      // console.log("Game.UIMode.gamePlay enter");
       Game.Message.clearMessages();
       if (this.attr._avatarId){ this.setCameraToAvatar(); }
       Game.renderAll();
     },
     exit: function() {
-      console.log("Game.UIMode.gamePlay exit");
+      // console.log("Game.UIMode.gamePlay exit");
       Game.renderAll();
     },
     getMap: function() {
@@ -175,9 +175,9 @@ Game.UIMode.gamePlay = {
       this.attr._avatarId = m.getId();
     },
     handleInput: function(eventType, evt){
-      console.log("Game.UIMode.gamePlay handleIndput");
-      console.log(eventType);
-      console.dir(evt);
+      // console.log("Game.UIMode.gamePlay handleIndput");
+      // console.log(eventType);
+      // console.dir(evt);
       var pressedKey = String.fromCharCode(evt.charCode);
       Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
       var dx = 0;
@@ -207,9 +207,20 @@ Game.UIMode.gamePlay = {
         }else if (evt.keyCode == ROT.VK_1){
           dx = 1;
           dy = -1;
+        }else if (evt.keyCode == ROT.VK_W){
+          this.getAvatar().raiseEntityEvent('wait');
+          Game.Message.sendMessage("You recover your energy.");
         }
+
         if (dx !== 0 || dy !== 0){
-          this.moveAvatar(dx, dy);
+          var useX = this.getAvatar().getX() + dx, useY = this.getAvatar().getY() + dy;
+          var t = this.getMap().getTile(useX, useY);
+          if (t == Game.Tile.floorTile){
+            this.moveAvatar(dx, dy);
+          }else if(t == Game.Tile.wallTile){
+            Game.Message.sendMessage("We build bridges not walls.");
+            this.getAvatar().raiseEntityEvent('removeWall', {wallPos:{x:useX, y:useY}});
+          }
         }
         // if (dx !== 0 || dy !== 0) {
         //   if (this.attr._map.getTile(this.attr._avatar.getX() + dx, this.attr._avatar.getY() + dy).isWalkable()){
@@ -225,7 +236,7 @@ Game.UIMode.gamePlay = {
       }
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gamePlay rendrOnMain");
+      // console.log("Game.UIMode.gamePlay rendrOnMain");
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
       this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY);
@@ -239,7 +250,7 @@ Game.UIMode.gamePlay = {
       display.drawText(1,2,"avatar x: "+this.getAvatar().getX(),fg,bg);
       display.drawText(1,3,"avatar y: "+this.getAvatar().getY(),fg,bg);
       display.drawText(1,4,"Health: " + this.getAvatar().getCurHp() + "/" + this.getAvatar().getMaxHp());
-      // display.drawText(1,5,"Stamina: " + this.getCurSp() + "/" + this.getMaxSp(); add stamina mixin for digging capabilities
+      display.drawText(1,5,"Stamina: " + this.getAvatar().getCurSp() + "/" + this.getAvatar().getMaxSp());
       display.drawText(1,6,"Turns taken: " + this.getAvatar().getTurns());
     },
     moveAvatar: function (dx,dy) {
@@ -281,32 +292,32 @@ Game.UIMode.gamePlay = {
 };
 Game.UIMode.gameWin = {
     enter: function(){
-      console.log("Game.UIMode.gameWin enter");
+      // console.log("Game.UIMode.gameWin enter");
     },
     exit: function() {
-      console.log("Game.UIMode.gameWin exit");
+      // console.log("Game.UIMode.gameWin exit");
     },
     handleInput: function(){
-      console.log("Game.UIMode.gameWin handleIndput");
+      // console.log("Game.UIMode.gameWin handleIndput");
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gameWin rendrOnMain");
+      // console.log("Game.UIMode.gameWin rendrOnMain");
       display.clear();
       display.drawText(0, 0, "You win!");
     }
 };
 Game.UIMode.gameLose = {
     enter: function(){
-      console.log("Game.UIMode.gameStart enter");
+      // console.log("Game.UIMode.gameStart enter");
     },
     exit: function() {
-      console.log("Game.UIMode.gameStart exit");
+      // console.log("Game.UIMode.gameStart exit");
     },
     handleInput: function(){
-      console.log("Game.UIMode.gameStart handleIndput");
+      // console.log("Game.UIMode.gameStart handleIndput");
     },
     renderOnMain: function(display){
-      console.log("Game.UIMode.gameStart rendrOnMain");
+      // console.log("Game.UIMode.gameStart rendrOnMain");
       display.clear();
       display.drawText(0, 0, "You lose!");
     }
