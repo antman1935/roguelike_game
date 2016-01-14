@@ -179,10 +179,10 @@ Game.UIMode.gamePlay = {
       // console.log(eventType);
       // console.dir(evt);
       var pressedKey = String.fromCharCode(evt.charCode);
-      Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
       var dx = 0;
       var dy = 0;
       if (eventType == 'keypress'){
+        Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
         if (evt.keyCode == 13){
           Game.switchUIMode(Game.UIMode.gameWin);
         }else if (evt.keyCode == 61){
@@ -230,7 +230,7 @@ Game.UIMode.gamePlay = {
         //   }
         // }
 
-        Game.renderAll();
+        //Game.renderAll();
       }else if (eventType == 'keydown' && evt.keyCode == 27) {
         Game.switchUIMode(Game.UIMode.gameLose);
       }

@@ -167,6 +167,7 @@ Game.EntityMixin.StaminaPoints = {
         }else{
           Game.Message.sendMessage("You're too tired to dig!")
         }
+        Game.renderAll();
       }
     }
   },
