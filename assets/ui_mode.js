@@ -218,10 +218,10 @@ Game.UIMode.gamePlay = {
           if (t == Game.Tile.floorTile){
             this.moveAvatar(dx, dy);
           }else if(t == Game.Tile.wallTile){
-            Game.Message.sendMessage("We build bridges not walls.");
             this.getAvatar().raiseEntityEvent('removeWall', {wallPos:{x:useX, y:useY}});
           }
         }
+        Game.renderAll();
         // if (dx !== 0 || dy !== 0) {
         //   if (this.attr._map.getTile(this.attr._avatar.getX() + dx, this.attr._avatar.getY() + dy).isWalkable()){
         //     this.moveAvatar(dx, dy);
@@ -267,7 +267,7 @@ Game.UIMode.gamePlay = {
     setCamera: function (sx,sy) {
       this.attr._cameraX = Math.min(Math.max(0,sx),this.getMap().getWidth());
       this.attr._cameraY = Math.min(Math.max(0,sy),this.getMap().getHeight());
-      Game.renderAll();
+      // Game.renderAll();
     },
     setCameraToAvatar: function () {
       this.setCamera(this.getAvatar().getX(),this.getAvatar().getY());

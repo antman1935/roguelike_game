@@ -163,11 +163,11 @@ Game.EntityMixin.StaminaPoints = {
         if (this.attr._StaminaPoints_attr.curSp){
           this.decreaseStamina();
           this.getMap().attr._removedWalls[evtData.wallPos.x+","+evtData.wallPos.y] = true;
+          Game.Message.sendMessage("You broke down a wall!");
           this.raiseEntityEvent('tookTurn');
         }else{
           Game.Message.sendMessage("You're too tired to dig!")
         }
-        Game.renderAll();
       }
     }
   },
