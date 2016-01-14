@@ -110,6 +110,21 @@ Game.Map.prototype.getEntity = function (x_or_xy, y){
   // return this.attr._entitiesByLocation[useX+','+useY] || false;
 };
 
+Game.Map.prototype.extractEntity = function(ent){
+  this.attr._entitiesByLocation[ent.getX()+","+ent.getY()] = undefined;
+  this.attr._locationsByEntity[ent.getId()] = undefined;
+  return ent;
+};
+
+Game.Map.prototype.extractEntityAt = function(x_or_xy, y){
+  var ent = this.getEntity(x_or_xy, y);
+  if (ent){
+    this.attr._entitiesByLocation[ent.getX()+","+ent.getY()] = undefined;
+    this.attr._locationsByEntity[ent.getId()] = undefined;
+  }
+  return ent;
+}
+
 Game.Map.prototype.toJSON = function(){
   var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
   return json;
