@@ -20,7 +20,7 @@ Game.Entity = function(template){
       var mixin = template.mixins[i];
       this._mixinTracker[mixin.META.mixinName] = true;
       this._mixinTracker[mixin.META.mixinGroup] = true;
-      for (var mixinProp in mixinProp != 'META' && mixin){
+      for (var mixinProp in mixin){
         if (mixinProp != 'META' && mixin.hasOwnProperty(mixinProp)){
           this[mixinProp] = mixin[mixinProp];
         }
