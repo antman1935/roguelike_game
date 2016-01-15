@@ -192,3 +192,29 @@ Game.EntityMixin.StaminaPoints = {
     this.attr._StaminaPoints_attr.curSp = Math.min(this.attr._StaminaPoints_attr.curSp, this.attr._StaminaPoints_attr.maxSp);
   }
 };
+
+Game.EntityMixin.PlayerMessager = {
+  META: {
+    mixinName: 'PlayerMessager',
+    mixinGroup: 'PlayerMessager',
+    listeners: {
+      'walkForbidden': function(evtData){
+        Game.Message.sendMessage("You cannot walk into the " + evtData.target.getName());
+        Game.renderMessage();
+      },
+      'dealtDamage': function(evtData){
+        Game.Message.sendMessage("You hit the " +evtData.damagee.getName()+ " for " +evtData.damageAmount);
+      },
+      'madeKill': function(evtData){
+        Game.Message.sendMessage("You killed the " + evtData.entKilled.getName());
+      },
+      'damagedBy': function(evtData){
+        Game.Message.sendMessage("The " +evtData.damager.getName()+ " hit you for " + evtData.damageAmount);
+      },
+      'killed': function(evtData){
+        Game.Message.sendMessage("You were killed by the " +evtData.killedBy.getName());
+        Game.renderMessage();
+      }
+    }
+  }
+};

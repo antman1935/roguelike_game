@@ -182,7 +182,7 @@ Game.UIMode.gamePlay = {
       var dx = 0;
       var dy = 0;
       if (eventType == 'keypress'){
-        Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
+        // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
         if (evt.keyCode == 13){
           Game.switchUIMode(Game.UIMode.gameWin);
         }else if (evt.keyCode == 61){
@@ -219,6 +219,8 @@ Game.UIMode.gamePlay = {
             this.moveAvatar(dx, dy);
           }else if(t == Game.Tile.wallTile){
             this.getAvatar().raiseEntityEvent('removeWall', {wallPos:{x:useX, y:useY}});
+          }else{
+            this.raiseEntityEvent('walkForbidden', {targert: t});
           }
         }
         Game.renderAll();
