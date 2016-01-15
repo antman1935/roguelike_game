@@ -7,6 +7,7 @@ Game.Entity = function(template){
   this.attr._name = template.name || '';
   this.attr._x = template.x || 0;
   this.attr._y = template.y || 0;
+  this.attr._exp = template.exp || 0;
   this.attr._generator_template_key = template.generator_template_key || '';
   this.attr._mapId = null;
 
@@ -63,16 +64,19 @@ Game.Entity.prototype.destroy = function(){
   //remove from map (turn into red X)
   this.getMap().extractEntity(this);
   Game.DATASTORE.ENTITY[this.getId()] = undefined;
-}
+};
+Game.Entity.prototype.getExp = function(){
+  return this.attr._exp;
+};
 Game.Entity.prototype.getId = function(){
   return this.attr._id;
-}
+};
 Game.Entity.prototype.getMap = function(){
   return Game.DATASTORE.MAP[this.attr._mapId];
-}
+};
 Game.Entity.prototype.setMap = function(map){
   this.attr._mapId = map.getId();
-}
+};
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
 };

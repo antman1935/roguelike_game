@@ -218,3 +218,43 @@ Game.EntityMixin.PlayerMessager = {
     }
   }
 };
+
+Game.EntityMixin.PlayerExperience = {
+  META: {
+    mixinName: "PlayerExperience",
+    mixinGroup: "Skills",
+    stateNamespace: "_PlayerExperience_attr",
+    stateModel: {
+      skillpoints: 0,
+      curExp: 0,
+      curLevel: 0,
+      nextLevel: 1
+    },
+    listeners: {
+      'madeKill': function(evtData){
+        this.attr._PlayerExperience_attr.curExp += evtData.entKilled.getExp();
+        while (this.attr._PlayerExperience_attr.nextLevel <= this.attr._PlayerExperience_attr.curExp){
+          this.levelUp();
+          this.attr._PlayerExperience_attr.nextLevel += Math.floor(Math.pow(this.attr._PlayerExperience_attr.nextLevel, 1.1));
+        }
+      }
+    }
+  },
+  levelUp: function(){
+    this.attr._PlayerExperience_attr.curLevel++;
+    this.attr._PlayerExperience_attr.skillpoints += 1 + Math.floor(this.attr._PlayerExperience_attr.curLevel / 5);
+    Game.Message.sendMessage("You're now level " +this.attr._PlayerExperience_attr.curLevel);
+  },
+  getCurLevel: function(){
+    return this.attr._PlayerExperience_attr.curLevel;
+  },
+  getCurExp: function(){
+    return this.attr._PlayerExperience_attr.curExp;
+  },
+  getNextLevelExp: function(){
+    return this.attr._PlayerExperience_attr.nextLevel;
+  },
+  getSkillPoints: function(){
+    return this.attr._PlayerExperience_attr.skillpoints;
+  }
+}

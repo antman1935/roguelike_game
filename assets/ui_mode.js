@@ -257,6 +257,13 @@ Game.UIMode.gamePlay = {
       display.drawText(1,4,"Health: " + this.getAvatar().getCurHp() + "/" + this.getAvatar().getMaxHp());
       display.drawText(1,5,"Stamina: " + this.getAvatar().getCurSp() + "/" + this.getAvatar().getMaxSp());
       display.drawText(1,6,"Turns taken: " + this.getAvatar().getTurns());
+
+      display.drawText(1,9,"Exp: " + this.getAvatar().getCurExp() + "/" + this.getAvatar().getNextLevelExp());
+      display.drawText(1,10,"Level: " + this.getAvatar().getCurLevel());
+      display.drawText(1,11,"You have " +this.getAvatar().getSkillPoints()+ " skill points.")
+      if (this.getAvatar().getSkillPoints()){
+        display.drawText(1,12,"Press [L] to spend your skill points.")
+      }
     },
     moveAvatar: function (dx,dy) {
       if (!(this.getAvatar().tryWalk(this.getMap(), dx, dy))){
@@ -286,6 +293,8 @@ Game.UIMode.gamePlay = {
       //make some enemies
       for (var i = 0; i < 80; i++) {
         this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
+        this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());
+        this.getMap().addEntity(Game.EntityGenerator.create('goblin'), this.getMap().getRandomWalkableLocation());
       }
     },
     toJSON: function() {
