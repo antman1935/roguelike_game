@@ -224,6 +224,7 @@ Game.UIMode.gamePlay = {
           }
         }
         Game.renderAll();
+        Game.Message.ageMessages();
         // if (dx !== 0 || dy !== 0) {
         //   if (this.attr._map.getTile(this.attr._avatar.getX() + dx, this.attr._avatar.getY() + dy).isWalkable()){
         //     this.moveAvatar(dx, dy);
