@@ -23,7 +23,7 @@ Game.Message = {
   },
   ageMessages: function(lastStaleMessageIdx){
     //archive stalest message
-    if (this.attr.staleMessages.length > 0){
+    if (this.attr.staleMessages.length > 5){
       this.attr.archivedMessages.unshift(this.attr.staleMessages.pop());
     }
     //archive stale messages that were not shown
