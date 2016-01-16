@@ -6,8 +6,8 @@ Game.EntityMixin.WalkerCorporeal = {
     mixinGroup: 'Walker'
   },
   tryWalk: function(map, dx, dy){
-    var targetX = Math.min(Math.max(0, this.getX() + dx), map.getWidth());
-    var targetY = Math.min(Math.max(0, this.getY() + dy), map.getHeight());
+    var targetX = Math.min(Math.max(0, this.getX() + dx), map.getWidth()-1);
+    var targetY = Math.min(Math.max(0, this.getY() + dy), map.getHeight()-1);
     if (map.getEntity(targetX, targetY)){
       this.raiseEntityEvent('bumpEntity', {actor:this, recipient:map.getEntity(targetX, targetY)});
       return true;
@@ -274,11 +274,11 @@ Game.EntityMixin.PlayerActor = {
   }
 };
 
-Game.EntityMixin.PeacefulWanderActor = {
+Game.EntityMixin.WanderActor = {
   META: {
-    mixinName: 'PeacefulWanderActor',
+    mixinName: 'WanderActor',
     mixinGroup: 'Actor',
-    stateNamespace: '_PeacefulWanderActor_attr',
+    stateNamespace: '_WanderActor_attr',
     stateModel:  {
       baseActionDuration: 1000,
       currentActionDuration: 1000
@@ -288,27 +288,28 @@ Game.EntityMixin.PeacefulWanderActor = {
     }
   },
   getBaseActionDuration: function () {
-    return this.attr._PlayerActor_attr.baseActionDuration;
+    return this.attr._WanderActor_attr.baseActionDuration;
   },
   setBaseActionDuration: function (n) {
-    this.attr._PlayerActor_attr.baseActionDuration = n;
+    this.attr._WanderActor_attr.baseActionDuration = n;
   },
   getCurrentActionDuration: function () {
-    return this.attr._PlayerActor_attr.currentActionDuration;
+    return this.attr._WanderActor_attr.currentActionDuration;
   },
   setCurrentActionDuration: function (n) {
-    this.attr._PlayerActor_attr.currentActionDuration = n;
+    this.attr._WanderActor_attr.currentActionDuration = n;
   },
-  getMoveCoord: function () {
-    console.log('TODO');
+  getMoveDeltas: function () {
+    return Game.util.positionsAdjacentTo({x:0, y:0}).random();
   },
   act: function () {
-  var moveTarget = this.getMoveCoord();
-    if (actor.hasMixin('Walker')) { // NOTE: this pattern suggests that maybe tryWalk shoudl be converted to an event
-      this.tryWalk(this.getMap(),moveTarget.x, moveTarget.y);
+    var moveDeltas = this.getMoveDeltas();
+    if (this.hasMixin('Walker')) { // NOTE: this pattern suggests that maybe tryWalk shoudl be converted to an event
+      this.tryWalk(this.getMap(),moveDeltas.x, moveDeltas.y);
     }
     Game.Scheduler.setDuration(this.getCurrentActionDuration());
     this.setCurrentActionDuration(this.getBaseActionDuration());
+    this.raiseEntityEvent('actionDone');
   }
 };
 

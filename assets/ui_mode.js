@@ -39,6 +39,9 @@ Game.UIMode.gamePersistence = {
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
 
+        Game.DATASTORE = {};
+        Game.DATASTORE.MAP = {};
+        Game.DATASTORE.ENTITY = {};
         // console.log('state_data:');
         // console.dir(state_data);
 
@@ -55,13 +58,18 @@ Game.UIMode.gamePersistence = {
             Game.DATASTORE.MAP[mapId].fromJSON(state_data.MAP[mapId]);
           }
         }
+        ROT.RNG.getUniform();
 
         //entity restoration
         for (var entityId in state_data.ENTITY) {
           if (state_data.ENTITY.hasOwnProperty(entityId)) {
             var entAttr = JSON.parse(state_data.ENTITY[entityId]);
-            Game.DATASTORE.ENTITY[entityId] = Game.EntityGenerator.create(entAttr._generator_template_key);
+
+            var newE = Game.EntityGenerator.create(entAttr._generator_template_key);
+            var idToPurge = newE.getId();
+            Game.DATASTORE.ENTITY[entityId] = newE;
             Game.DATASTORE.ENTITY[entityId].fromJSON(state_data.ENTITY[entityId]); // restores entity attr
+            Game.DATASTORE.ENTITY[idToPurge] = undefined;
           }
         }
 
@@ -300,7 +308,7 @@ Game.UIMode.gamePlay = {
       this.setCameraToAvatar();
 
       //make some enemies
-      for (var i = 0; i < 80; i++) {
+      for (var i = 0; i < 40; i++) {
         this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('goblin'), this.getMap().getRandomWalkableLocation());
