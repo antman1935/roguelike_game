@@ -159,10 +159,12 @@ Game.UIMode.gamePlay = {
       Game.Message.clearMessages();
       if (this.attr._avatarId){ this.setCameraToAvatar(); }
       Game.renderAll();
+      Game.TimeEngine.unlock();
     },
     exit: function() {
       // console.log("Game.UIMode.gamePlay exit");
       Game.renderAll();
+      Game.TimeEngine.lock();
     },
     getMap: function() {
       return Game.DATASTORE.MAP[this.attr._mapId];;
@@ -180,7 +182,7 @@ Game.UIMode.gamePlay = {
       // console.log("Game.UIMode.gamePlay handleIndput");
       // console.log(eventType);
       // console.dir(evt);
-      var pressedKey = String.fromCharCode(evt.charCode);
+      var tookTurn = false;
       var dx = 0;
       var dy = 0;
       if (eventType == 'keypress'){
@@ -208,39 +210,45 @@ Game.UIMode.gamePlay = {
           dy = -1;
         }else if (evt.keyCode == ROT.VK_8){
           dy = -1;
-        }else if (evt.keyCode == ROT.VK_1){
+        }else if (evt.keyCode == ROT.VK_9){
           dx = 1;
           dy = -1;
         }else if (evt.keyCode == ROT.VK_W){
-          this.getAvatar().raiseEntityEvent('wait');
-          Game.Message.sendMessage("You recover your energy.");
+          tookTurn = this.avatarWait();
         }
 
         if (dx !== 0 || dy !== 0){
           var useX = this.getAvatar().getX() + dx, useY = this.getAvatar().getY() + dy;
           var t = this.getMap().getTile(useX, useY);
           if (t == Game.Tile.floorTile){
-            this.moveAvatar(dx, dy);
+            tookTurn = this.moveAvatar(dx, dy);
           }else if(t == Game.Tile.wallTile){
-            this.getAvatar().raiseEntityEvent('removeWall', {wallPos:{x:useX, y:useY}});
+            tookTurn = this.breakWall(useX, useY);
           }else{
             this.raiseEntityEvent('walkForbidden', {targert: t});
           }
         }
-        Game.renderAll();
-        Game.Message.ageMessages();
-        // if (dx !== 0 || dy !== 0) {
-        //   if (this.attr._map.getTile(this.attr._avatar.getX() + dx, this.attr._avatar.getY() + dy).isWalkable()){
-        //     this.moveAvatar(dx, dy);
-        //   }else{
-        //
-        //   }
-        // }
-
-        //Game.renderAll();
       }else if (eventType == 'keydown' && evt.keyCode == 27) {
         Game.switchUIMode(Game.UIMode.gameLose);
       }
+      if (tookTurn){
+        this.getAvatar().raiseEntityEvent('actionDone');
+        Game.Message.ageMessages();
+        return true;
+      }
+    },
+    breakWall: function(useX, useY){
+      var num = Object.keys(this.getMap().attr._removedWalls).length;
+      this.getAvatar().raiseEntityEvent('removeWall', {wallPos:{x:useX, y:useY}});
+      if (num < Object.keys(this.getMap().attr._removedWalls).length){
+        return true;
+      }
+      Game.Message.ageMessages();
+      return false;
+    },
+    avatarWait: function(){
+      this.getAvatar().raiseEntityEvent('wait');
+      return true;
     },
     renderOnMain: function(display){
       // console.log("Game.UIMode.gamePlay rendrOnMain");
@@ -268,12 +276,11 @@ Game.UIMode.gamePlay = {
       }
     },
     moveAvatar: function (dx,dy) {
-      if (!(this.getAvatar().tryWalk(this.getMap(), dx, dy))){
-        Game.Message.sendMessage("You can't move there.");
+      if (this.getAvatar().tryWalk(this.getMap(), dx, dy)){
+        this.setCameraToAvatar();
+        return true;
       }
-      // this.getAvatar().setX(Math.min(Math.max(0,this.getAvatar().getX() + dx),this.attr._mapWidth));
-      // this.getAvatar().setY(Math.min(Math.max(0,this.getAvatar().getY() + dy),this.attr._mapHeight));
-      this.setCameraToAvatar();
+      return false;
     },
     moveCamera: function (dx,dy) {
       this.setCamera(this.attr._cameraX + dx,this.attr._cameraY + dy);

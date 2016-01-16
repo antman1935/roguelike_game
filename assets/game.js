@@ -43,11 +43,18 @@ var Game = {
 
   DATASTORE: {},
 
+  Scheduler: null,
+  TimeEngine: null,
+
   init: function() {
     this._game = this;
 
     this.TRANSIENT_RNG = ROT.RNG.clone();
     Game.setRandomSeed(5 + Math.floor(this.TRANSIENT_RNG.getUniform() * 100000));
+    Game.Scheduler = new ROT.Scheduler.Action();
+    Game.TimeEngine = new ROT.Engine(Game.Scheduler);
+    Game.TimeEngine.start();
+    Game.TimeEngine.lock();
 
     //this.DISPLAYS.main.o = new ROT.Display({width:Game.DISPLAYS.main.w, height:Game.DISPLAYS.main.h});
     for (var displayName in this.DISPLAYS) {

@@ -10,7 +10,6 @@ Game.EntityMixin.WalkerCorporeal = {
     var targetY = Math.min(Math.max(0, this.getY() + dy), map.getHeight());
     if (map.getEntity(targetX, targetY)){
       this.raiseEntityEvent('bumpEntity', {actor:this, recipient:map.getEntity(targetX, targetY)});
-      this.raiseEntityEvent('tookTurn');
       return true;
     }
     if (map.getTile(targetX, targetY).isWalkable()){
@@ -19,7 +18,6 @@ Game.EntityMixin.WalkerCorporeal = {
       if (myMap){
         myMap.updateEntityLocation(this);
       }
-      this.raiseEntityEvent('tookTurn');
       return true;
     }
     return false;
@@ -36,7 +34,7 @@ Game.EntityMixin.Chronicle = {
        deathMessage: ''
     },
     listeners: {
-      'tookTurn': function(evtData){
+      'actionDone': function(evtData){
         this.trackTurn();
       },
       'madeKill': function(evtData){
@@ -156,18 +154,24 @@ Game.EntityMixin.StaminaPoints = {
     },
     listeners: {
       'wait': function(evtData){
+        var num = this.getCurSp();
         this.restoreStamina();
-        this.raiseEntityEvent('tookTurn');
+        if (num < this.getCurSp()){
+          Game.Message.sendMessage("You recover some energy.");
+        }else{
+          Game.Message.sendMessage("You lie in wait.")
+        }
+        Game.renderMessage();
       },
       'removeWall': function(evtData){
         if (this.attr._StaminaPoints_attr.curSp){
           this.decreaseStamina();
           this.getMap().attr._removedWalls[evtData.wallPos.x+","+evtData.wallPos.y] = true;
           Game.Message.sendMessage("You broke down a wall!");
-          this.raiseEntityEvent('tookTurn');
         }else{
           Game.Message.sendMessage("You're too tired to dig!")
         }
+        Game.renderMessage();
       }
     }
   },
@@ -204,18 +208,107 @@ Game.EntityMixin.PlayerMessager = {
       },
       'dealtDamage': function(evtData){
         Game.Message.sendMessage("You hit the " +evtData.damagee.getName()+ " for " +evtData.damageAmount);
+        Game.renderMessage();
       },
       'madeKill': function(evtData){
         Game.Message.sendMessage("You killed the " + evtData.entKilled.getName());
+        Game.renderMessage();
       },
       'damagedBy': function(evtData){
         Game.Message.sendMessage("The " +evtData.damager.getName()+ " hit you for " + evtData.damageAmount);
+        Game.renderMessage();
       },
       'killed': function(evtData){
         Game.Message.sendMessage("You were killed by the " +evtData.killedBy.getName());
         Game.renderMessage();
       }
     }
+  }
+};
+
+Game.EntityMixin.PlayerActor = {
+  META: {
+    mixinName: 'PlayerActor',
+    mixinGroup: "Actor",
+    stateNamespace: '_PlayerActor_attr',
+    stateModel: {
+      baseActionDuration: 1000,
+      actingState: false,
+      currentActionDuration: 1000
+    },
+    init: function(template){
+      Game.Scheduler.add(this, true, this.getBaseActionDuration());
+    },
+    listeners: {
+      'actionDone': function(evtData){
+        Game.Scheduler.setDuration(this.getCurrentActionDuration());
+        this.setCurrentActionDuration(this.getBaseActionDuration());
+        Game.TimeEngine.unlock();
+      }
+    }
+  },
+  getBaseActionDuration: function(){
+    return this.attr._PlayerActor_attr.baseActionDuration;
+  },
+  setBaseActionDuration: function(n){
+    this.attr._PlayerActor_attr.baseActionDuration = n;
+  },
+  getCurrentActionDuration: function(){
+    return this.attr._PlayerActor_attr.currentActionDuration;
+  },
+  setCurrentActionDuration: function(n){
+    this.attr._PlayerActor_attr.currentActionDuration = n;
+  },
+  isActing: function(state){
+    if (state !== undefined){
+      this.attr._PlayerActor_attr.actingState = state;
+    }
+    return this.attr._PlayerActor_attr.actingState;
+  },
+  act: function(){
+    if (this.isActing()) {return;}
+    this.isActing(true);
+    Game.renderAll()
+    Game.TimeEngine.lock();
+    this.isActing(false);
+  }
+};
+
+Game.EntityMixin.PeacefulWanderActor = {
+  META: {
+    mixinName: 'PeacefulWanderActor',
+    mixinGroup: 'Actor',
+    stateNamespace: '_PeacefulWanderActor_attr',
+    stateModel:  {
+      baseActionDuration: 1000,
+      currentActionDuration: 1000
+    },
+    init: function (template) {
+      Game.Scheduler.add(this,true, this.getBaseActionDuration());
+    }
+  },
+  getBaseActionDuration: function () {
+    return this.attr._PlayerActor_attr.baseActionDuration;
+  },
+  setBaseActionDuration: function (n) {
+    this.attr._PlayerActor_attr.baseActionDuration = n;
+  },
+  getCurrentActionDuration: function () {
+    return this.attr._PlayerActor_attr.currentActionDuration;
+  },
+  setCurrentActionDuration: function (n) {
+    this.attr._PlayerActor_attr.currentActionDuration = n;
+  },
+  getMoveCoord: function () {
+    console.log('TODO');
+  },
+  act: function () {
+  var moveTarget = this.getMoveCoord();
+    if (actor.hasMixin('Walker')) { // NOTE: this pattern suggests that maybe tryWalk shoudl be converted to an event
+      this.tryWalk(this.getMap(),moveTarget.x, moveTarget.y);
+    }
+    Game.Scheduler.setDuration(this.getCurrentActionDuration());
+    this.setCurrentActionDuration(this.getBaseActionDuration());
   }
 };
 
@@ -260,7 +353,7 @@ Game.EntityMixin.PlayerExperience = {
   spendSkillPoints: function(n){
     this.attr._PlayerExperience_attr.skillpoints -= n;
   }
-}
+};
 
 Game.EntityMixin.PlayerSkills = {
   META: {
