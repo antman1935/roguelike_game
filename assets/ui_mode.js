@@ -189,6 +189,8 @@ Game.UIMode.gamePlay = {
           Game.switchUIMode(Game.UIMode.gameWin);
         }else if (evt.keyCode == 61){
           Game.switchUIMode(Game.UIMode.gamePersistence);
+        }else if (evt.keyCode == ROT.VK_L){
+          Game.switchUIMode(Game.UIMode.gameSkillMenu);
         }else if (evt.keyCode == ROT.VK_1){
           dx = -1;
           dy = 1;
@@ -334,5 +336,70 @@ Game.UIMode.gameLose = {
       // console.log("Game.UIMode.gameStart rendrOnMain");
       display.clear();
       display.drawText(0, 0, "You lose!");
+    }
+};
+
+Game.UIMode.gameSkillMenu = {
+    attr: {
+      _avatarId: ''
+    },
+    enter: function(){
+      this.attr._avatarId = Game.UIMode.gamePlay.attr._avatarId;
+      Game.renderAll();
+    },
+    exit: function() {
+      // console.log("Game.UIMode.gameStart exit");
+    },
+    handleInput: function(eventType, evt){
+      if (eventType == 'keypress'){
+        // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
+        var success = false
+        if (evt.keyCode == ROT.VK_0){
+          success = this.getAvatar().upgrade("vitality");
+        }else if (evt.keyCode == ROT.VK_1){
+          success = this.getAvatar().upgrade("endurance");
+        }else if (evt.keyCode == ROT.VK_2){
+          success = this.getAvatar().upgrade("strength");
+        }else if (evt.keyCode == ROT.VK_3){
+          success = this.getAvatar().upgrade("agility");
+        }else if (evt.keyCode == ROT.VK_4){
+          success = this.getAvatar().upgrade("accuracy");
+        }else if (evt.keyCode == ROT.VK_5){
+          success = this.getAvatar().upgrade("magicka");
+        }else if (evt.keyCode == ROT.VK_6){
+          success = this.getAvatar().upgrade("luck");
+        }else if (evt.keyCode == ROT.VK_7){
+          success = this.getAvatar().upgrade("intelligence");
+        }else if (evt.keyCode == ROT.VK_8){
+
+        }
+        Game.Message.ageMessages();
+        if (success){
+          this.getAvatar().effect();
+          Game.Message.sendMessage("Purchase confirmed!");
+        }else{
+          Game.Message.sendMessage("You do not have enough skill points to upgrade that.");
+        }
+        Game.renderAll();
+      }else if (eventType == 'keydown' && evt.keyCode == 27) {
+        Game.switchUIMode(Game.UIMode.gamePlay);
+      }
+    },
+    renderOnMain: function(display){
+      display.clear();
+      display.drawText(0, 0, "0 - Vitality - Current Level: " + this.getAvatar().getSkillLevel("vitality"));
+      display.drawText(0, 1, "1 - Endurance - Current Level: " + this.getAvatar().getSkillLevel("endurance"));
+      display.drawText(0, 2, "2 - Strength - Current Level: " + this.getAvatar().getSkillLevel("strength"));
+      display.drawText(0, 3, "3 - Agility - Current Level: " + this.getAvatar().getSkillLevel("agility"));
+      display.drawText(0, 4, "4 - Accuracy - Current Level: " + this.getAvatar().getSkillLevel("accuracy"));
+      display.drawText(0, 5, "5 - Magicka - Current Level: " + this.getAvatar().getSkillLevel("magicka"));
+      display.drawText(0, 6, "6 - Luck - Current Level: " + this.getAvatar().getSkillLevel("luck"));
+      display.drawText(0, 7, "7 - Intelligence - Current Level: " + this.getAvatar().getSkillLevel("intelligence"));
+    },
+    renderAvatarInfo: function (display) {
+      display.drawText(0,0,"You have " +this.getAvatar().getSkillPoints()+ " skill points. Press [ESC] to leave this menu.")
+    },
+    getAvatar: function() {
+      return Game.DATASTORE.ENTITY[this.attr._avatarId];;
     }
 };

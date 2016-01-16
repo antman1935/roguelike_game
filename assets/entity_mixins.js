@@ -256,5 +256,56 @@ Game.EntityMixin.PlayerExperience = {
   },
   getSkillPoints: function(){
     return this.attr._PlayerExperience_attr.skillpoints;
+  },
+  spendSkillPoints: function(n){
+    this.attr._PlayerExperience_attr.skillpoints -= n;
   }
 }
+
+Game.EntityMixin.PlayerSkills = {
+  META: {
+    mixinName: "PlayerSkills",
+    mixinGroup: "Skills",
+    stateNamespace: "_PlayerSkills_attr",
+    stateModel: {
+      "vitality": 0, //health
+      "endurance": 0, //stamina
+      "strength": 0, //will determine melee damage and carry weight
+      "agility": 0, //will determine ability to dodge and successfully hit
+      "accuracy": 0, //will determine the effectiveness of all projectiles
+      "magicka": 0, //determine magic reserves
+      "luck": 0, //determines the value of random drops
+      "intelligence": 0, //determines your ability to use certain items
+      "permaBuffs": {} // will hold five buffs that the player chooses. they can all be upgraded
+    }
+  },
+  getSkillLevel: function(skillname){
+    return this.attr._PlayerSkills_attr[skillname];
+  },
+  upgrade: function(skill, buff){
+    if (buff){
+      return this.attr._PlayerSkills_attr["permaBuffs"][skill].upgrade();
+    }else if (this.attr._PlayerSkills_attr.hasOwnProperty(skill) && this.getSkillPoints()){
+      this.attr._PlayerSkills_attr[skill]++;
+      this.spendSkillPoints(1);
+      return true;
+    }
+    return false;
+  },
+  effect: function(){
+    this.setMaxHp(10 + 5 * this.attr._PlayerSkills_attr["vitality"]);
+    this.setCurHp(this.getMaxHp());
+    this.setMaxSp(10 + 2 * this.attr._PlayerSkills_attr["endurance"]);
+    this.setCurSp(this.getMaxSp());
+    for (var buff in this.attr._PlayerSkills_attr["permaBuffs"]) {
+      if (this.attr._PlayerSkills_attr["permaBuffs"].hasOwnProperty(buff)) {
+        buff.boost(this);
+      }
+    }
+  },
+  getNewBuff: function(buff){
+    if (this.attr._PlayerSkills_attr["permaBuffs"].length < Math.min(Math.floor(this.attr._PlayerExperience_attr.getCurLevel() / 5), 5)){
+
+    }
+  }
+};
