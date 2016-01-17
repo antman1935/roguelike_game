@@ -30,12 +30,15 @@ Game.UIMode.gamePersistence = {
       if (this.localStorageAvailable()){
         Game.DATASTORE.GAME_PLAY = Game.UIMode.gamePlay.attr;
         Game.DATASTORE.MESSAGE = Game.Message.attr;
+        window.localStorage.removeItem(Game._PERSISTENCE_NAMESPACE);
         window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game.DATASTORE));
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
     restoreGame: function() {
       if (this.localStorageAvailable()){
+        Game.Scheduler.clear();
+        
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
 
@@ -44,6 +47,8 @@ Game.UIMode.gamePersistence = {
         Game.DATASTORE.ENTITY = {};
         // console.log('state_data:');
         // console.dir(state_data);
+        Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
+        Game.Message.attr = state_data.MESSAGE;
 
         //game level
         Game.setRandomSeed(state_data[this.RANDOM_SEED_KEY]);
@@ -59,22 +64,23 @@ Game.UIMode.gamePersistence = {
           }
         }
         ROT.RNG.getUniform();
-
+        var i = 0;
         //entity restoration
         for (var entityId in state_data.ENTITY) {
           if (state_data.ENTITY.hasOwnProperty(entityId)) {
             var entAttr = JSON.parse(state_data.ENTITY[entityId]);
+            i++;
+            var newE = Game.EntityGenerator.create(entAttr._generator_template_key, entAttr._id);
 
-            var newE = Game.EntityGenerator.create(entAttr._generator_template_key);
-            var idToPurge = newE.getId();
             Game.DATASTORE.ENTITY[entityId] = newE;
             Game.DATASTORE.ENTITY[entityId].fromJSON(state_data.ENTITY[entityId]); // restores entity attr
-            Game.DATASTORE.ENTITY[idToPurge] = undefined;
+            if (newE.getMap() === undefined){
+              console.log(i)
+              console.dir(newE);
+            }
           }
         }
 
-        Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
-        Game.Message.attr = state_data.MESSAGE;
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
@@ -302,6 +308,10 @@ Game.UIMode.gamePlay = {
       this.setCamera(this.getAvatar().getX(),this.getAvatar().getY());
     },
     setupNewGame: function(){
+      Game.DATASTORE = {};
+      Game.DATASTORE.ENTITY = {};
+      Game.DATASTORE.MAP = {};
+
       this.setMap(new Game.Map('caves1'));
       this.setAvatar(Game.EntityGenerator.create('avatar'));
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
