@@ -38,13 +38,14 @@ Game.UIMode.gamePersistence = {
     restoreGame: function() {
       if (this.localStorageAvailable()){
         Game.Scheduler.clear();
-        
+
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
 
         Game.DATASTORE = {};
         Game.DATASTORE.MAP = {};
         Game.DATASTORE.ENTITY = {};
+        Game.initializeTimeEngine();
         // console.log('state_data:');
         // console.dir(state_data);
         Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
@@ -85,6 +86,10 @@ Game.UIMode.gamePersistence = {
       }
     },
     newGame: function () {
+      Game.DATASTORE = {};
+      Game.DATASTORE.ENTITY = {};
+      Game.DATASTORE.MAP = {};
+      Game.initializeTimeEngine();
       Game.setRandomSeed(5 + Math.floor(Game.TRANSIENT_RNG.getUniform() * 100000));
       Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
@@ -172,8 +177,8 @@ Game.UIMode.gamePlay = {
       // console.log("Game.UIMode.gamePlay enter");
       Game.Message.clearMessages();
       if (this.attr._avatarId){ this.setCameraToAvatar(); }
-      Game.renderAll();
       Game.TimeEngine.unlock();
+      Game.renderAll();
     },
     exit: function() {
       // console.log("Game.UIMode.gamePlay exit");
@@ -308,10 +313,6 @@ Game.UIMode.gamePlay = {
       this.setCamera(this.getAvatar().getX(),this.getAvatar().getY());
     },
     setupNewGame: function(){
-      Game.DATASTORE = {};
-      Game.DATASTORE.ENTITY = {};
-      Game.DATASTORE.MAP = {};
-
       this.setMap(new Game.Map('caves1'));
       this.setAvatar(Game.EntityGenerator.create('avatar'));
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());

@@ -51,10 +51,6 @@ var Game = {
 
     this.TRANSIENT_RNG = ROT.RNG.clone();
     Game.setRandomSeed(5 + Math.floor(this.TRANSIENT_RNG.getUniform() * 100000));
-    Game.Scheduler = new ROT.Scheduler.Action();
-    Game.TimeEngine = new ROT.Engine(Game.Scheduler);
-    Game.TimeEngine.start();
-    Game.TimeEngine.lock();
 
     //this.DISPLAYS.main.o = new ROT.Display({width:Game.DISPLAYS.main.w, height:Game.DISPLAYS.main.h});
     for (var displayName in this.DISPLAYS) {
@@ -75,6 +71,10 @@ var Game = {
     bindEventToUiMode('keypress');
     bindEventToUiMode('keydown');
   },
+  initializeTimeEngine: function(){
+    Game.Scheduler = new ROT.Scheduler.Action();
+    Game.TimeEngine = new ROT.Engine(Game.Scheduler);
+  }
   getDisplay: function(displayName){
     return Game.DISPLAYS[displayName].o;
   },

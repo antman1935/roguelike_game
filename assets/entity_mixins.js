@@ -237,13 +237,13 @@ Game.EntityMixin.PlayerActor = {
       currentActionDuration: 1000
     },
     init: function(template){
-      Game.Scheduler.add(this, true, this.getBaseActionDuration());
+      Game.Scheduler.add(this, true, 1);
     },
     listeners: {
       'actionDone': function(evtData){
         Game.Scheduler.setDuration(this.getCurrentActionDuration());
-        this.setCurrentActionDuration(this.getBaseActionDuration());
-        Game.TimeEngine.unlock();
+        this.setCurrentActionDuration(this.getBaseActionDuration(), Game.util.randomInt(-5, 5));
+        setTimeout(function() {Game.TimeEngine.unlock();}, 1);
       }
     }
   },
@@ -284,7 +284,7 @@ Game.EntityMixin.WanderActor = {
       currentActionDuration: 1000
     },
     init: function (template) {
-      Game.Scheduler.add(this,true, this.getBaseActionDuration());
+      Game.Scheduler.add(this,true, Game.util.randomInt(2, this.getBaseActionDuration()));
     }
   },
   getBaseActionDuration: function () {
@@ -303,13 +303,15 @@ Game.EntityMixin.WanderActor = {
     return Game.util.positionsAdjacentTo({x:0, y:0}).random();
   },
   act: function () {
+    Game.TimeEngine.lock();
     var moveDeltas = this.getMoveDeltas();
     if (this.hasMixin('Walker')) { // NOTE: this pattern suggests that maybe tryWalk shoudl be converted to an event
-      this.tryWalk(this.getMap(),moveDeltas.x, moveDeltas.y);
+      this.tryWalk(this.getMap(), moveDeltas.x, moveDeltas.y);
     }
     Game.Scheduler.setDuration(this.getCurrentActionDuration());
-    this.setCurrentActionDuration(this.getBaseActionDuration());
+    this.setCurrentActionDuration(this.getBaseActionDuration() + Game.util.randomInt(-10, 10));
     this.raiseEntityEvent('actionDone');
+    Game.TimeEngine.unlock();
   }
 };
 
