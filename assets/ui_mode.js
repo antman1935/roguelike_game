@@ -30,6 +30,12 @@ Game.UIMode.gamePersistence = {
       if (this.localStorageAvailable()){
         Game.DATASTORE.GAME_PLAY = Game.UIMode.gamePlay.attr;
         Game.DATASTORE.MESSAGE = Game.Message.attr;
+        Game.DATASTORE.SCHEDULE = {};
+        Game.DATASTORE.SCHEDULE[Game.Scheduler._current.getId()] = 1;
+        for (var i = 0; i < Game.Scheduler._queue._eventTimes.length; i++) {
+          Game.DATASTORE.SCHEDULE[Game.Scheduler._current.getId()] = Game.Scheduler._queue._eventTimes[i] + 1
+        }
+        Game.DATASTORE.SCHEDULE_TIME = Game.Scheduler._queue.getTime() - 1;
         window.localStorage.removeItem(Game._PERSISTENCE_NAMESPACE);
         window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game.DATASTORE));
         Game.switchUIMode(Game.UIMode.gamePlay);
@@ -45,11 +51,21 @@ Game.UIMode.gamePersistence = {
         Game.DATASTORE = {};
         Game.DATASTORE.MAP = {};
         Game.DATASTORE.ENTITY = {};
-        Game.initializeTimeEngine();
+
         // console.log('state_data:');
         // console.dir(state_data);
         Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
         Game.Message.attr = state_data.MESSAGE;
+
+        Game.initializeTimeEngine();
+        for (var schedItemId in state_data.SCHEDULE) {
+          if (state_data.SCHEDULE.hasOwnProperty(schedItemId)) {
+            if (Game.DATASTORE.ENTITY.hasOwnProperty(schedItemId)) {
+              Game.Scheduler.add(Game.DATASTORE.ENTITY[schedItemId], true, state_data.SCHEDULE[schedItemId]);
+            }
+          }
+        }
+        Game.Scheduler._queue._time = state_data.SCHEDULE_TIME;
 
         //game level
         Game.setRandomSeed(state_data[this.RANDOM_SEED_KEY]);
