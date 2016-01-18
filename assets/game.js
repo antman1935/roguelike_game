@@ -74,7 +74,7 @@ var Game = {
   initializeTimeEngine: function(){
     Game.Scheduler = new ROT.Scheduler.Action();
     Game.TimeEngine = new ROT.Engine(Game.Scheduler);
-  }
+  },
   getDisplay: function(displayName){
     return Game.DISPLAYS[displayName].o;
   },

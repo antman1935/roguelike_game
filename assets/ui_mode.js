@@ -154,6 +154,7 @@ Game.UIMode.gameStart = {
     },
     handleInput: function(eventTpe, evt){
       // console.log("Game.UIMode.gameStart handleIndput");
+      Game.initializeTimeEngine();
       Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
