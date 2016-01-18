@@ -4,27 +4,30 @@ Game.UIMode.DEFAULT_COLOR_BG = '#000';
 Game.UIMode.DEFAULT_COLOR_STR = '%c{'+Game.UIMode.DEFAULT_COLOR_FG+'}%b{'+Game.UIMode.DEFAULT_COLOR_BG+'}';
 
 Game.UIMode.gamePersistence = {
+    _storedKeyBinding: '',
     enter: function(){
-      // console.log("Game.UIMode.gamePersistence enter");
+      Game.Message.ageMessages();
+      this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
+      Game.KeyBinding.setKeyBinding('persist');
+      Game.renderAll();
     },
     exit: function() {
-      // console.log("Game.UIMode.gamePersistence exit");
+      Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
+      Game.renderAll();
     },
     handleInput: function(eventType, evt){
       // console.log(eventType);
       // console.dir(evt);
-      if (eventType == 'keypress'){
-        if (evt.keyCode == ROT.VK_S){
-          // console.log("save");
-          this.saveGame();
-        }else if (evt.keyCode == ROT.VK_L){
-          // console.log("load");
-          this.restoreGame();
-        }else if (evt.keyCode == ROT.VK_N){
-          // console.log("new game");
-          this.newGame();
-        }
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
+      if (!actionBinding){ return false; }
+      if (actionBinding.actionKey == 'PERSISTENCE_SAVE'){
+        this.saveGame();
+      }else if (actionBinding.actionKey == 'PERSISTENCE_LOAD'){
+        this.restoreGame();
+      }else if (actionBinding.actionKey == 'PERSISTENCE_NEW'){
+        this.newGame();
       }
+      return false;
     },
     saveGame: function(){
       if (this.localStorageAvailable()){
@@ -38,6 +41,7 @@ Game.UIMode.gamePersistence = {
         Game.DATASTORE.SCHEDULE_TIME = Game.Scheduler._queue.getTime() - 1;
         window.localStorage.removeItem(Game._PERSISTENCE_NAMESPACE);
         window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game.DATASTORE));
+        Game.Message.sendMessage('Game saved.');
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
@@ -76,28 +80,22 @@ Game.UIMode.gamePersistence = {
             var mapAttr = JSON.parse(state_data.MAP[mapId]);
             // console.log("restoring map " +mapId+ " with attributes");
             // console.dir(mapAttr);
-            Game.DATASTORE.MAP[mapId] = new Game.Map(mapAttr._mapTileSetName);
+            Game.DATASTORE.MAP[mapId] = new Game.Map(mapAttr._mapTileSetName, mapId);
             Game.DATASTORE.MAP[mapId].fromJSON(state_data.MAP[mapId]);
           }
         }
         ROT.RNG.getUniform();
-        var i = 0;
         //entity restoration
         for (var entityId in state_data.ENTITY) {
           if (state_data.ENTITY.hasOwnProperty(entityId)) {
             var entAttr = JSON.parse(state_data.ENTITY[entityId]);
-            i++;
             var newE = Game.EntityGenerator.create(entAttr._generator_template_key, entAttr._id);
 
             Game.DATASTORE.ENTITY[entityId] = newE;
             Game.DATASTORE.ENTITY[entityId].fromJSON(state_data.ENTITY[entityId]); // restores entity attr
-            if (newE.getMap() === undefined){
-              console.log(i)
-              console.dir(newE);
-            }
           }
         }
-
+        Game.Message.sendMessage("Game loaded.");
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
     },
@@ -108,6 +106,7 @@ Game.UIMode.gamePersistence = {
       Game.initializeTimeEngine();
       Game.setRandomSeed(5 + Math.floor(Game.TRANSIENT_RNG.getUniform() * 100000));
       Game.UIMode.gamePlay.setupNewGame();
+      Game.Message.sendMessage("New game started.");
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
@@ -168,7 +167,7 @@ Game.UIMode.gameStart = {
       // console.log("Game.UIMode.gameStart exit");
       Game.renderAll();
     },
-    handleInput: function(eventTpe, evt){
+    handleInput: function(eventType, evt){
       // console.log("Game.UIMode.gameStart handleIndput");
       Game.initializeTimeEngine();
       Game.UIMode.gamePlay.setupNewGame();
@@ -192,7 +191,6 @@ Game.UIMode.gamePlay = {
 
     enter: function(){
       // console.log("Game.UIMode.gamePlay enter");
-      Game.Message.clearMessages();
       if (this.attr._avatarId){ this.setCameraToAvatar(); }
       Game.TimeEngine.unlock();
       Game.renderAll();
@@ -218,55 +216,56 @@ Game.UIMode.gamePlay = {
       // console.log("Game.UIMode.gamePlay handleIndput");
       // console.log(eventType);
       // console.dir(evt);
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
+      if (!actionBinding) { return false; }
       var tookTurn = false;
       var dx = 0;
       var dy = 0;
-      if (eventType == 'keypress'){
-        // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
-        if (evt.keyCode == 13){
-          Game.switchUIMode(Game.UIMode.gameWin);
-        }else if (evt.keyCode == 61){
-          Game.switchUIMode(Game.UIMode.gamePersistence);
-        }else if (evt.keyCode == ROT.VK_L){
-          Game.switchUIMode(Game.UIMode.gameSkillMenu);
-        }else if (evt.keyCode == ROT.VK_1){
-          dx = -1;
-          dy = 1;
-        }else if (evt.keyCode == ROT.VK_2){
-          dy = 1;
-        }else if (evt.keyCode == ROT.VK_3){
-          dx = 1;
-          dy = 1;
-        }else if (evt.keyCode == ROT.VK_4){
-          dx = -1;
-        }else if (evt.keyCode == ROT.VK_6){
-          dx = 1;
-        }else if (evt.keyCode == ROT.VK_7){
-          dx = -1;
-          dy = -1;
-        }else if (evt.keyCode == ROT.VK_8){
-          dy = -1;
-        }else if (evt.keyCode == ROT.VK_9){
-          dx = 1;
-          dy = -1;
-        }else if (evt.keyCode == ROT.VK_W){
-          tookTurn = this.avatarWait();
-        }
 
-        if (dx !== 0 || dy !== 0){
-          var useX = this.getAvatar().getX() + dx, useY = this.getAvatar().getY() + dy;
-          var t = this.getMap().getTile(useX, useY);
-          if (t == Game.Tile.floorTile){
-            tookTurn = this.moveAvatar(dx, dy);
-          }else if(t == Game.Tile.wallTile){
-            tookTurn = this.breakWall(useX, useY);
-          }else{
-            this.raiseEntityEvent('walkForbidden', {targert: t});
-          }
-        }
-      }else if (eventType == 'keydown' && evt.keyCode == 27) {
-        Game.switchUIMode(Game.UIMode.gameLose);
+        // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
+      if (actionBinding.actionKey == "PERSISTENCE"){
+        Game.switchUIMode(Game.UIMode.gamePersistence);
+      }else if (actionBinding.actionKey == "SKILLMENU"){
+        Game.switchUIMode(Game.UIMode.gameSkillMenu);
+      }else if (actionBinding.actionKey == "MOVE_DL"){
+        dx = -1;
+        dy = 1;
+      }else if (actionBinding.actionKey == "MOVE_D"){
+        dy = 1;
+      }else if (actionBinding.actionKey == "MOVE_DR"){
+        dx = 1;
+        dy = 1;
+      }else if (actionBinding.actionKey == "MOVE_L"){
+        dx = -1;
+      }else if (actionBinding.actionKey == "MOVE_R"){
+        dx = 1;
+      }else if (actionBinding.actionKey == "MOVE_UL"){
+        dx = -1;
+        dy = -1;
+      }else if (actionBinding.actionKey == "MOVE_U"){
+        dy = -1;
+      }else if (actionBinding.actionKey == "MOVE_UR"){
+        dx = 1;
+        dy = -1;
+      }else if (actionBinding.actionKey == "MOVE_WAIT"){
+        tookTurn = this.avatarWait();
+      }else if (actionBinding.actionKey == "CANCEL"){
+        return false;
       }
+
+      if (dx !== 0 || dy !== 0){
+        var useX = this.getAvatar().getX() + dx;
+        var useY = this.getAvatar().getY() + dy;
+        var t = this.getMap().getTile(useX, useY);
+        if (t.isWalkable()){
+          tookTurn = this.moveAvatar(dx, dy);
+        }else if(t.isDiggable()){
+          tookTurn = this.breakWall(useX, useY);
+        }else{
+          this.raiseEntityEvent('walkForbidden', {targert: t});
+        }
+      }
+
       if (tookTurn){
         this.getAvatar().raiseEntityEvent('actionDone');
         Game.Message.ageMessages();
@@ -386,47 +385,50 @@ Game.UIMode.gameSkillMenu = {
     attr: {
       _avatarId: ''
     },
+    _storedKeyBinding: '',
     enter: function(){
       this.attr._avatarId = Game.UIMode.gamePlay.attr._avatarId;
+      this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
+      Game.KeyBinding.setKeyBinding('skillmenu');
       Game.renderAll();
     },
     exit: function() {
-      // console.log("Game.UIMode.gameStart exit");
+      Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
+      Game.renderAll()
     },
     handleInput: function(eventType, evt){
-      if (eventType == 'keypress'){
-        // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
-        var success = false
-        if (evt.keyCode == ROT.VK_0){
-          success = this.getAvatar().upgrade("vitality");
-        }else if (evt.keyCode == ROT.VK_1){
-          success = this.getAvatar().upgrade("endurance");
-        }else if (evt.keyCode == ROT.VK_2){
-          success = this.getAvatar().upgrade("strength");
-        }else if (evt.keyCode == ROT.VK_3){
-          success = this.getAvatar().upgrade("agility");
-        }else if (evt.keyCode == ROT.VK_4){
-          success = this.getAvatar().upgrade("accuracy");
-        }else if (evt.keyCode == ROT.VK_5){
-          success = this.getAvatar().upgrade("magicka");
-        }else if (evt.keyCode == ROT.VK_6){
-          success = this.getAvatar().upgrade("luck");
-        }else if (evt.keyCode == ROT.VK_7){
-          success = this.getAvatar().upgrade("intelligence");
-        }else if (evt.keyCode == ROT.VK_8){
-
-        }
-        Game.Message.ageMessages();
-        if (success){
-          this.getAvatar().effect();
-          Game.Message.sendMessage("Purchase confirmed!");
-        }else{
-          Game.Message.sendMessage("You do not have enough skill points to upgrade that.");
-        }
-        Game.renderAll();
-      }else if (eventType == 'keydown' && evt.keyCode == 27) {
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
+      if (!actionBinding) { return false; }
+      // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
+      var success = false
+      if (actionBinding.actionKey == "SKILLMENU_VITALITY"){
+        success = this.getAvatar().upgrade("vitality");
+      }else if (actionBinding.actionKey == "SKILLMENU_ENDURANCE"){
+        success = this.getAvatar().upgrade("endurance");
+      }else if (actionBinding.actionKey == "SKILLMENU_STRENGTH"){
+        success = this.getAvatar().upgrade("strength");
+      }else if (actionBinding.actionKey == "SKILLMENU_AGILITY"){
+        success = this.getAvatar().upgrade("agility");
+      }else if (actionBinding.actionKey == "SKILLMENU_ACCURACY"){
+        success = this.getAvatar().upgrade("accuracy");
+      }else if (actionBinding.actionKey == "SKILLMENU_MAGICKA"){
+        success = this.getAvatar().upgrade("magicka");
+      }else if (actionBinding.actionKey == "SKILLMENU_LUCK"){
+        success = this.getAvatar().upgrade("luck");
+      }else if (actionBinding.actionKey == "SKILLMENU_INTELLIGENCE"){
+        success = this.getAvatar().upgrade("intelligence");
+      }else if (actionBinding.actionKey == "CANCEL"){
         Game.switchUIMode(Game.UIMode.gamePlay);
       }
+      Game.Message.ageMessages();
+      if (success){
+        this.getAvatar().effect();
+        Game.Message.sendMessage("Purchase confirmed!");
+      }else{
+        Game.Message.sendMessage("You do not have enough skill points to upgrade that.");
+      }
+      Game.renderAll();
+
     },
     renderOnMain: function(display){
       display.clear();

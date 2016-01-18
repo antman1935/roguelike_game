@@ -58,9 +58,10 @@ var Game = {
         this.DISPLAYS[displayName].o = new ROT.Display({width:this.DISPLAYS[displayName].w, height:this.DISPLAYS[displayName].h});
       }
     }
+
+    Game.KeyBinding.setKeyBinding();
     Game.switchUIMode(Game.UIMode.gameStart);
     this.renderAll();
-
     var bindEventToUiMode = function(event) {
         window.addEventListener(event, function(e) {
             if (Game._curUIMode !== null) {
