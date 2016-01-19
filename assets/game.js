@@ -114,7 +114,18 @@ var Game = {
     }
     return null;
   },
+  hideDisplayMessage: function(){
+    this.DISPLAYS.message.o.clear();
+  },
+  specialMessage: function(msg){
+    this.DISPLAYS.message.o.clear();
+    this.DISPLAYS.message.o.drawText(1,1,'%c{#fff}%b{#000}'+msg, 79);
+  },
   switchUIMode: function(newUIModeName){
+    if (newUIModeName.startsWith('LAYER_')){
+      console.log('cannot switchUIMode to layer ' +newUIModeName);
+      return;
+    }
     var curMode = this.getCurUIMode();
     if (curMode !== null){
       curMode.exit()
@@ -124,15 +135,17 @@ var Game = {
     if (newMode){
       newMode.enter();
     }
-    this.renderAll();
   },
-  addUIMode: function(newUIModeName){
-    this._uiModeNameStack.unshift(newUIModeName);
-    var newMode = Game.UIMode[newUIModeName];
+  addUIMode: function(newUIModeLayerName){
+    if (! (newUIModeLayerName.startsWith('LAYER_'))){
+      console.log('addUIMode not possible for non-layer ' +newUIModeLayerName);
+      return;
+    }
+    this._uiModeNameStack.unshift(newUIModeLayerName);
+    var newMode = Game.UIMode[newUIModeLayerName];
     if (newMode){
       newMode.enter();
     }
-    this.renderAll();
   },
   removeUIMode: function(){
     var curMode = this.getCurUIMode();
@@ -140,7 +153,6 @@ var Game = {
       curMode.exit();
     }
     this._uiModeNameStack.shift();
-    this.renderAll();
   },
    eventHandler: function(eventType, evt){
      if (this.getCurUIMode() !== null){

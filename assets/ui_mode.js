@@ -229,6 +229,7 @@ Game.UIMode.gamePlay = {
       }else if (actionBinding.actionKey == "CHANGE_BINDINGS"){
         Game.KeyBinding.swapToNextKeyBinding();
       }else if (actionBinding.actionKey == 'HELP'){
+        Game.UIMode.LAYER_textReading.setText(Game.KeyBinding.getBindingHelpText());
         Game.addUIMode('LAYER_textReading');
       }
 
@@ -361,10 +362,12 @@ Game.UIMode.LAYER_textReading = {
       this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
       Game.KeyBinding.setKeyBinding('LAYER_textReading');
       Game.renderAll();
+      Game.specialMessage("[ESC] to exit, [ and ] for scrolling");
     },
     exit: function() {
       Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
       Game.renderAll();
+      setTimeout(function() {Game.renderAll();}, 1);
     },
     handleInput: function(eventType, evt){
       var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
@@ -378,7 +381,7 @@ Game.UIMode.LAYER_textReading = {
     },
     renderOnMain: function(display){
       var dims = Game.util.getDisplayDim(display);
-      display.drawText(1, 2, Game.UIMode.DEFAULT_COLOR_STR+"text is " + this._text);
+      display.drawText(1, 2, Game.UIMode.DEFAULT_COLOR_STR+ this._text, dims.w - 2);
     },
     getText: function(){
       return this._text;
