@@ -24,6 +24,14 @@ Game.UIMode.gamePersistence = {
         this.restoreGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_NEW'){
         this.newGame();
+      }else if (actionBinding.actionKey == "CANCEL"){
+        if (Object.keys(Game.DATASTORE.MAP).length < 1){
+          this.newGame();
+        }else{
+          Game.switchUIMode('gamePlay');
+        }
+      }else if (actionBinding.actionKey == 'HELP'){
+        Game.addUIMode('LAYER_textReading');
       }
       return false;
     },
@@ -220,6 +228,8 @@ Game.UIMode.gamePlay = {
         tookTurn = this.avatarWait();
       }else if (actionBinding.actionKey == "CHANGE_BINDINGS"){
         Game.KeyBinding.swapToNextKeyBinding();
+      }else if (actionBinding.actionKey == 'HELP'){
+        Game.addUIMode('LAYER_textReading');
       }
 
       if (dx !== 0 || dy !== 0){
@@ -344,12 +354,12 @@ Game.UIMode.gameLose = {
       display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR+"You lose!");
     }
 };
-Game.UIMode.textReading = {
+Game.UIMode.LAYER_textReading = {
     _storedKeyBinding: '',
-    _text: '',
+    _text: 'default',
     enter: function(){
       this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
-      Game.KeyBinding.setKeyBinding('textReading');
+      Game.KeyBinding.setKeyBinding('LAYER_textReading');
       Game.renderAll();
     },
     exit: function() {
@@ -357,15 +367,18 @@ Game.UIMode.textReading = {
       Game.renderAll();
     },
     handleInput: function(eventType, evt){
-      var actionBinding = Game.KeyBinding.getInputBinding(inputType,inputData);
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
       if (!actionBinding){
         return false;
+      }
+      if (actionBinding.actionKey == 'CANCEL'){
+        Game.removeUIMode();
       }
       return false;
     },
     renderOnMain: function(display){
       var dims = Game.util.getDisplayDim(display);
-      display.drawText(1, 2, DEFAULT_COLOR_STR+"text is " + this._text);
+      display.drawText(1, 2, Game.UIMode.DEFAULT_COLOR_STR+"text is " + this._text);
     },
     getText: function(){
       return this._text;
