@@ -1,11 +1,16 @@
-Game.ALL_ENTITIES = {};
+Game.BASE_PLAYER_ATTRIBUTES = {
+  maxHp: 10,
+  maxHpGrowth: 5,
+  maxSp: 10,
+  maxSpGrowth: 2
+};
 Game.EntityGenerator = new Game.Generator('entities', Game.Entity);
 Game.EntityGenerator.learn({
   name: 'avatar',
   chr: '@',
   fg: '#dda',
-  maxHp: 10,
-  maxSp: 10,
+  maxHp: Game.BASE_PLAYER_ATTRIBUTES.maxHp,
+  maxSp: Game.BASE_PLAYER_ATTRIBUTES.maxSp,
   mixins: ["WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
 });
 

@@ -389,9 +389,9 @@ Game.EntityMixin.PlayerSkills = {
     return false;
   },
   effect: function(){
-    this.setMaxHp(10 + 5 * this.attr._PlayerSkills_attr["vitality"]);
+    this.setMaxHp(Game.BASE_PLAYER_ATTRIBUTES.maxHp + Game.BASE_PLAYER_ATTRIBUTES.maxHpGrowth * this.attr._PlayerSkills_attr["vitality"]);
     this.setCurHp(this.getMaxHp());
-    this.setMaxSp(10 + 2 * this.attr._PlayerSkills_attr["endurance"]);
+    this.setMaxSp(Game.BASE_PLAYER_ATTRIBUTES.maxSp + Game.BASE_PLAYER_ATTRIBUTES.maxSpGrowth * this.attr._PlayerSkills_attr["endurance"]);
     this.setCurSp(this.getMaxSp());
     for (var buff in this.attr._PlayerSkills_attr["permaBuffs"]) {
       if (this.attr._PlayerSkills_attr["permaBuffs"].hasOwnProperty(buff)) {

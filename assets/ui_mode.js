@@ -358,6 +358,8 @@ Game.UIMode.gameLose = {
 Game.UIMode.LAYER_textReading = {
     _storedKeyBinding: '',
     _text: 'default',
+    _renderY: 0,
+    _renderScrollLimit: 0,
     enter: function(){
       this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
       Game.KeyBinding.setKeyBinding('LAYER_textReading');
@@ -376,12 +378,26 @@ Game.UIMode.LAYER_textReading = {
       }
       if (actionBinding.actionKey == 'CANCEL'){
         Game.removeUIMode();
+      }else if (actionBinding.actionKey == 'DATA_NAV_UP'){
+        console.log("up");
+        this._renderY++;
+        if (this._renderY > 0) { this._renderY = 0; }
+        Game.renderMain();
+       return true;
+      }else if (actionBinding.actionKey == 'DATA_NAV_DOWN') {
+        console.log("down");
+        this._renderY--;
+        if (this._renderY < this._renderScrollLimit) { this._renderY = this._renderScrollLimit; }
+        Game.renderMain();
+        return true;
       }
       return false;
     },
     renderOnMain: function(display){
       var dims = Game.util.getDisplayDim(display);
-      display.drawText(1, 2, Game.UIMode.DEFAULT_COLOR_STR+ this._text, dims.w - 2);
+      var linesTaken = display.drawText(1, this._renderY, Game.UIMode.DEFAULT_COLOR_STR+this._text, dims.w - 1)
+      this._renderScrollLimit = dims.h - linesTaken;
+      if (this._renderScrollLimit > 0) {this._renderScrollLimit = 0;}
     },
     getText: function(){
       return this._text;
@@ -429,6 +445,8 @@ Game.UIMode.gameSkillMenu = {
         success = this.getAvatar().upgrade("intelligence");
       }else if (actionBinding.actionKey == "CANCEL"){
         Game.switchUIMode("gamePlay");
+      }else{
+        return;
       }
       Game.Message.ageMessages();
       if (success){
