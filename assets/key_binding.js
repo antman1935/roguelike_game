@@ -197,7 +197,7 @@ Game.KeyBinding = {
     },
 
     SKILLMENU : {action_group:'meta', guid:Game.util.uniqueId(), ordering:4, short:"skill menu", long:'Load the skill menu to purchase upgrades.',
-      all: {label:'L', inputMatch:ROT.VK_L, inputType:'keydown', inputMetaShift:true, inputMetaCtrl: false}
+      all: {label:'l', inputMatch:ROT.VK_L, inputType:'keydown', inputMetaShift:false, inputMetaCtrl: false}
     },
     SKILLMENU_VITALITY : {action_group:'skillmenu' ,guid:Game.util.uniqueId() ,ordering:4.1 ,short:'vitality'     ,long :'Upgrade your vitality to increase your maximum health.',
       skillmenu: {label:'0' ,inputMatch:ROT.VK_NUMPAD0 ,inputType:'keydown'  ,inputMetaShift:false  ,inputMetaCtrl:false}

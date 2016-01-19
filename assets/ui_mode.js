@@ -21,6 +21,7 @@ Game.UIMode.gamePersistence = {
       if (actionBinding.actionKey == 'PERSISTENCE_SAVE'){
         this.saveGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_LOAD'){
+        console.log("trying to load...");
         this.restoreGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_NEW'){
         this.newGame();
@@ -286,7 +287,7 @@ Game.UIMode.gamePlay = {
       display.drawText(1,10, Game.UIMode.DEFAULT_COLOR_STR + "Level: " + this.getAvatar().getCurLevel());
       display.drawText(1,11, Game.UIMode.DEFAULT_COLOR_STR + "You have " +this.getAvatar().getSkillPoints()+ " skill points.")
       if (this.getAvatar().getSkillPoints()){
-        display.drawText(1,12, Game.UIMode.DEFAULT_COLOR_STR + "Press [L] to spend your skill points.")
+        display.drawText(1,12, Game.UIMode.DEFAULT_COLOR_STR + "Press [l] to spend your skill points.")
       }
     },
     moveAvatar: function (dx,dy) {
@@ -315,6 +316,7 @@ Game.UIMode.gamePlay = {
       for (var i = 0; i < 40; i++) {
         this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());
+        this.getMap().addEntity(Game.EntityGenerator.create('angry squirrel'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('goblin'), this.getMap().getRandomWalkableLocation());
       }
     },

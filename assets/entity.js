@@ -69,6 +69,7 @@ Game.Entity.prototype.destroy = function(){
   //remove from map (turn into red X)
   this.getMap().extractEntity(this);
   Game.DATASTORE.ENTITY[this.getId()] = undefined;
+  Game.Scheduler.remove(this);
 };
 Game.Entity.prototype.getExp = function(){
   return this.attr._exp;
