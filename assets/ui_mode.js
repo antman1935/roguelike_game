@@ -33,6 +33,7 @@ Game.UIMode.gamePersistence = {
       if (this.localStorageAvailable()){
         Game.DATASTORE.GAME_PLAY = Game.UIMode.gamePlay.attr;
         Game.DATASTORE.MESSAGE = Game.Message.attr;
+        Game.DATASTORE.KEY_BINDING_SET = this._storedKeyBinding;
         Game.DATASTORE.SCHEDULE = {};
         Game.DATASTORE.SCHEDULE[Game.Scheduler._current.getId()] = 1;
         for (var i = 0; i < Game.Scheduler._queue._eventTimes.length; i++) {
@@ -60,6 +61,7 @@ Game.UIMode.gamePersistence = {
         // console.dir(state_data);
         Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
         Game.Message.attr = state_data.MESSAGE;
+        this._storedKeyBinding = state_data.KEY_BINDING_SET;
 
         Game.initializeTimeEngine();
         for (var schedItemId in state_data.SCHEDULE) {
@@ -161,10 +163,12 @@ Game.UIMode.gameStart = {
     enter: function(){
       // console.log("Game.UIMode.gameStart enter");
       Game.Message.sendMessage("Welcome to possibly the best rouge-like game. Ever.");
+      Game.KeyBinding.setKeyBinding();
       Game.renderAll();
     },
     exit: function() {
       // console.log("Game.UIMode.gameStart exit");
+      Game.KeyBinding.informPlayer();
       Game.renderAll();
     },
     handleInput: function(eventType, evt){
@@ -193,6 +197,7 @@ Game.UIMode.gamePlay = {
       // console.log("Game.UIMode.gamePlay enter");
       if (this.attr._avatarId){ this.setCameraToAvatar(); }
       Game.TimeEngine.unlock();
+      // Game.KeyBinding.informPlayer();
       Game.renderAll();
     },
     exit: function() {
@@ -217,7 +222,7 @@ Game.UIMode.gamePlay = {
       // console.log(eventType);
       // console.dir(evt);
       var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
-      if (!actionBinding) { return false; }
+      if (!actionBinding || actionBinding.actionKey == 'CANCEL') { return false; }
       var tookTurn = false;
       var dx = 0;
       var dy = 0;
@@ -249,8 +254,8 @@ Game.UIMode.gamePlay = {
         dy = -1;
       }else if (actionBinding.actionKey == "MOVE_WAIT"){
         tookTurn = this.avatarWait();
-      }else if (actionBinding.actionKey == "CANCEL"){
-        return false;
+      }else if (actionBinding.actionKey == "CHANGE_BINDINGS"){
+        Game.KeyBinding.swapToNextKeyBinding();
       }
 
       if (dx !== 0 || dy !== 0){
