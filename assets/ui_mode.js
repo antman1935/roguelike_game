@@ -41,7 +41,7 @@ Game.UIMode.gamePersistence = {
         window.localStorage.removeItem(Game._PERSISTENCE_NAMESPACE);
         window.localStorage.setItem(Game._PERSISTENCE_NAMESPACE, JSON.stringify(Game.DATASTORE));
         Game.Message.sendMessage('Game saved.');
-        Game.switchUIMode(Game.UIMode.gamePlay);
+        Game.switchUIMode("gamePlay");
       }
     },
     restoreGame: function() {
@@ -92,7 +92,7 @@ Game.UIMode.gamePersistence = {
           }
         }
         Game.Message.sendMessage("Game loaded.");
-        Game.switchUIMode(Game.UIMode.gamePlay);
+        Game.switchUIMode("gamePlay");
         Game.KeyBinding.informPlayer();
       }
     },
@@ -104,7 +104,7 @@ Game.UIMode.gamePersistence = {
       Game.setRandomSeed(5 + Math.floor(Game.TRANSIENT_RNG.getUniform() * 100000));
       Game.UIMode.gamePlay.setupNewGame();
       Game.Message.sendMessage("New game started.");
-      Game.switchUIMode(Game.UIMode.gamePlay);
+      Game.switchUIMode("gamePlay");
     },
     localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
   	   try {
@@ -147,7 +147,7 @@ Game.UIMode.gameStart = {
     handleInput: function(eventType, evt){
       Game.initializeTimeEngine();
       Game.UIMode.gamePlay.setupNewGame();
-      Game.switchUIMode(Game.UIMode.gamePlay);
+      Game.switchUIMode("gamePlay");
     },
     renderOnMain: function(display){
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
@@ -193,9 +193,9 @@ Game.UIMode.gamePlay = {
       var dy = 0;
 
       if (actionBinding.actionKey == "PERSISTENCE"){
-        Game.switchUIMode(Game.UIMode.gamePersistence);
+        Game.switchUIMode("gamePersistence");
       }else if (actionBinding.actionKey == "SKILLMENU"){
-        Game.switchUIMode(Game.UIMode.gameSkillMenu);
+        Game.switchUIMode("gameSkillMenu");
       }else if (actionBinding.actionKey == "MOVE_DL"){
         dx = -1;
         dy = 1;
@@ -412,7 +412,7 @@ Game.UIMode.gameSkillMenu = {
       }else if (actionBinding.actionKey == "SKILLMENU_INTELLIGENCE"){
         success = this.getAvatar().upgrade("intelligence");
       }else if (actionBinding.actionKey == "CANCEL"){
-        Game.switchUIMode(Game.UIMode.gamePlay);
+        Game.switchUIMode("gamePlay");
       }
       Game.Message.ageMessages();
       if (success){

@@ -11,7 +11,7 @@ window.onload = function() {
         document.getElementById('wsrl-avatar-display').appendChild(   Game.getDisplay('avatar').getContainer());
         document.getElementById('wsrl-message-display').appendChild(   Game.getDisplay('message').getContainer());
 
-        Game.Message.sendMessage("Message");
+
     }
 };
 
@@ -39,6 +39,7 @@ var Game = {
   _game: null,
   _randomSeed: 0,
   _curUIMode: null,
+  _uiModeNameStack: [],
   TRANSIENT_RNG: null,
 
   DATASTORE: {},
@@ -60,12 +61,12 @@ var Game = {
     }
 
     Game.KeyBinding.setKeyBinding();
-    Game.switchUIMode(Game.UIMode.gameStart);
+    Game.switchUIMode('gameStart');
     this.renderAll();
     var bindEventToUiMode = function(event) {
         window.addEventListener(event, function(e) {
-            if (Game._curUIMode !== null) {
-                Game._curUIMode.handleInput(event, e);
+            if (Game.getCurUIMode() !== null) {
+                Game.getCurUIMode().handleInput(event, e);
             }
         });
     };
@@ -85,8 +86,8 @@ var Game = {
     this.renderMessage();
   },
   renderMain: function() {
-    if (this._curUIMode.hasOwnProperty('renderOnMain')){
-      this._curUIMode.renderOnMain(this.DISPLAYS.main.o);
+    if (this.getCurUIMode().hasOwnProperty('renderOnMain')){
+      this.getCurUIMode().renderOnMain(this.DISPLAYS.main.o);
     }else{
       for (var i = 0; i < 5; i++) {
         this.DISPLAYS.main.o.drawText(2, 3+i, "Literally Anything LLC");
@@ -95,32 +96,55 @@ var Game = {
   },
   renderAvatar: function() {
     this.DISPLAYS.avatar.o.clear();
-    if (this._curUIMode === null) {
+    if (this.getCurUIMode() === null) {
       return;
     }
-    if (this._curUIMode.hasOwnProperty('renderAvatarInfo')) {
-      this._curUIMode.renderAvatarInfo(this.DISPLAYS.avatar.o);
+    if (this.getCurUIMode().hasOwnProperty('renderAvatarInfo')) {
+      this.getCurUIMode().renderAvatarInfo(this.DISPLAYS.avatar.o);
     }
   },
   renderMessage: function() {
     //this.DISPLAYS.avatar.o.drawText(2, 3, "Message");
     Game.Message.renderOn(this.DISPLAYS.message.o);
   },
-  switchUIMode: function(newMode){
-    if (this._curUIMode !== null) {
-      this._curUIMode.exit();
+  getCurUIMode: function(){
+    var uiModeName = this._uiModeNameStack[0];
+    if (uiModeName){
+      return Game.UIMode[uiModeName];
     }
-    this._curUIMode = newMode;
-    if (this._curUIMode !== null) {
-      this._curUIMode.enter();
-      this._curUIMode.renderOnMain(this.DISPLAYS.main.o);
+    return null;
+  },
+  switchUIMode: function(newUIModeName){
+    var curMode = this.getCurUIMode();
+    if (curMode !== null){
+      curMode.exit()
     }
+    this._uiModeNameStack[0] = newUIModeName;
+    var newMode = Game.UIMode[newUIModeName];
+    if (newMode){
+      newMode.enter();
+    }
+    this.renderAll();
+  },
+  addUIMode: function(newUIModeName){
+    this._uiModeNameStack.unshift(newUIModeName);
+    var newMode = Game.UIMode[newUIModeName];
+    if (newMode){
+      newMode.enter();
+    }
+    this.renderAll();
+  },
+  removeUIMode: function(){
+    var curMode = this.getCurUIMode();
+    if (curMode !== null){
+      curMode.exit();
+    }
+    this._uiModeNameStack.shift();
+    this.renderAll();
   },
    eventHandler: function(eventType, evt){
-    //  console.log(eventType);
-    //  console.dir(evt);
-     if (this._curUIMode !== null){
-       this._curUIMode.handleInput(eventType, evt);
+     if (this.getCurUIMode() !== null){
+       this.getCurUIMode().handleInput(eventType, evt);
      }
    },
    getRandomseed: function(){
@@ -131,9 +155,4 @@ var Game = {
      this.DATASTORE[Game.UIMode.gamePersistence.RANDOM_SEED_KEY] = this._randomSeed;
      ROT.RNG.setSeed(this._randomSeed);
    }
-  //  toJSON: function() {
-  //    var json = {"_randomSeed":this._randomSeed};
-  //    json[Game.UIMode.gamePlay.JSON_KEY] = Game.UIMode.gamePlay.toJSON();
-  //    return json;
-  //  }
 };
