@@ -16,8 +16,6 @@ Game.UIMode.gamePersistence = {
       Game.renderAll();
     },
     handleInput: function(eventType, evt){
-      // console.log(eventType);
-      // console.dir(evt);
       var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
       if (!actionBinding){ return false; }
       if (actionBinding.actionKey == 'PERSISTENCE_SAVE'){
@@ -57,8 +55,6 @@ Game.UIMode.gamePersistence = {
         Game.DATASTORE.MAP = {};
         Game.DATASTORE.ENTITY = {};
 
-        // console.log('state_data:');
-        // console.dir(state_data);
         Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
         Game.Message.attr = state_data.MESSAGE;
         this._storedKeyBinding = state_data.KEY_BINDING_SET;
@@ -80,8 +76,6 @@ Game.UIMode.gamePersistence = {
         for (var mapId in state_data.MAP) {
           if (state_data.MAP.hasOwnProperty(mapId)) {
             var mapAttr = JSON.parse(state_data.MAP[mapId]);
-            // console.log("restoring map " +mapId+ " with attributes");
-            // console.dir(mapAttr);
             Game.DATASTORE.MAP[mapId] = new Game.Map(mapAttr._mapTileSetName, mapId);
             Game.DATASTORE.MAP[mapId].fromJSON(state_data.MAP[mapId]);
           }
@@ -99,6 +93,7 @@ Game.UIMode.gamePersistence = {
         }
         Game.Message.sendMessage("Game loaded.");
         Game.switchUIMode(Game.UIMode.gamePlay);
+        Game.KeyBinding.informPlayer();
       }
     },
     newGame: function () {
@@ -123,9 +118,8 @@ Game.UIMode.gamePersistence = {
   	   }
     },
     renderOnMain: function(display){
-      // console.log("Game.UIMode.gamePersistence rendrOnMain");
       display.clear();
-      display.drawText(0, 0, "Press S to save your game, L to load a game, or N to start a new one.");
+      display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR+"Press S to save your game, L to load a game, or N to start a new one.");
     },
     BASE_toJSON: function(state_hash_name){
       var state = this.attr;
@@ -133,55 +127,32 @@ Game.UIMode.gamePersistence = {
         state = this[state_hash_name];
       }
       var json = JSON.stringify(state);
-      // for (var at in state) {
-      //   if (state.hasOwnProperty(at)) {
-      //     if (state[at] instanceof Object && 'toJSON' in state[at]){
-      //       json[at] = state[at].toJSON();
-      //     }else{
-      //       json[at] = state[at];
-      //     }
-      //   }
-      // }
       return json;
     },
     BASE_fromJSON: function (json, state_hash_name){
       var using_state_hash = state_hash_name  || 'attr';
-      // for (var at in this[using_state_hash]) {
-      //   if (this[using_state_hash].hasOwnProperty(at)) {
-      //     if ((this[using_state_hash][at] instanceof Object) &&
-      //            ('fromJSON' in this[using_state_hash][at])) {
-      //       this[using_state_hash][at].fromJSON(json[at]);
-      //     }else{
-      //       this[using_state_hash][at] = json[at];
-      //     }
-      //   }
-      // }
       this[using_state_hash] = JSON.parse(json);
     }
 };
 Game.UIMode.gameStart = {
     enter: function(){
-      // console.log("Game.UIMode.gameStart enter");
       Game.Message.sendMessage("Welcome to possibly the best rouge-like game. Ever.");
       Game.KeyBinding.setKeyBinding();
       Game.renderAll();
     },
     exit: function() {
-      // console.log("Game.UIMode.gameStart exit");
       Game.KeyBinding.informPlayer();
       Game.renderAll();
     },
     handleInput: function(eventType, evt){
-      // console.log("Game.UIMode.gameStart handleIndput");
       Game.initializeTimeEngine();
       Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode(Game.UIMode.gamePlay);
     },
     renderOnMain: function(display){
-      // console.log("Game.UIMode.gameStart rendrOnMain");
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      display.drawText(0, 0, "Press any key to begin.", fg, bg);
+      display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR + "Press any key to begin.");
     }
 };
 Game.UIMode.gamePlay = {
@@ -194,14 +165,11 @@ Game.UIMode.gamePlay = {
     JSON_KEY: 'uiMode_gamePlay',
 
     enter: function(){
-      // console.log("Game.UIMode.gamePlay enter");
       if (this.attr._avatarId){ this.setCameraToAvatar(); }
       Game.TimeEngine.unlock();
-      // Game.KeyBinding.informPlayer();
       Game.renderAll();
     },
     exit: function() {
-      // console.log("Game.UIMode.gamePlay exit");
       Game.renderAll();
       Game.TimeEngine.lock();
     },
@@ -218,16 +186,12 @@ Game.UIMode.gamePlay = {
       this.attr._avatarId = m.getId();
     },
     handleInput: function(eventType, evt){
-      // console.log("Game.UIMode.gamePlay handleIndput");
-      // console.log(eventType);
-      // console.dir(evt);
       var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
       if (!actionBinding || actionBinding.actionKey == 'CANCEL') { return false; }
       var tookTurn = false;
       var dx = 0;
       var dy = 0;
 
-        // Game.Message.sendMessage("you pressed the '"+String.fromCharCode(evt.charCode)+"' key");
       if (actionBinding.actionKey == "PERSISTENCE"){
         Game.switchUIMode(Game.UIMode.gamePersistence);
       }else if (actionBinding.actionKey == "SKILLMENU"){
@@ -291,7 +255,6 @@ Game.UIMode.gamePlay = {
       return true;
     },
     renderOnMain: function(display){
-      // console.log("Game.UIMode.gamePlay rendrOnMain");
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
       this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY);
@@ -302,17 +265,17 @@ Game.UIMode.gamePlay = {
     renderAvatarInfo: function (display) {
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      display.drawText(1,2,"avatar x: "+this.getAvatar().getX(),fg,bg);
-      display.drawText(1,3,"avatar y: "+this.getAvatar().getY(),fg,bg);
-      display.drawText(1,4,"Health: " + this.getAvatar().getCurHp() + "/" + this.getAvatar().getMaxHp());
-      display.drawText(1,5,"Stamina: " + this.getAvatar().getCurSp() + "/" + this.getAvatar().getMaxSp());
-      display.drawText(1,6,"Turns taken: " + this.getAvatar().getTurns());
+      display.drawText(1,2, Game.UIMode.DEFAULT_COLOR_STR + "avatar x: "+this.getAvatar().getX());
+      display.drawText(1,3, Game.UIMode.DEFAULT_COLOR_STR + "avatar y: "+this.getAvatar().getY());
+      display.drawText(1,4, Game.UIMode.DEFAULT_COLOR_STR + "Health: " + this.getAvatar().getCurHp() + "/" + this.getAvatar().getMaxHp());
+      display.drawText(1,5, Game.UIMode.DEFAULT_COLOR_STR + "Stamina: " + this.getAvatar().getCurSp() + "/" + this.getAvatar().getMaxSp());
+      display.drawText(1,6, Game.UIMode.DEFAULT_COLOR_STR + "Turns taken: " + this.getAvatar().getTurns());
 
-      display.drawText(1,9,"Exp: " + this.getAvatar().getCurExp() + "/" + this.getAvatar().getNextLevelExp());
-      display.drawText(1,10,"Level: " + this.getAvatar().getCurLevel());
-      display.drawText(1,11,"You have " +this.getAvatar().getSkillPoints()+ " skill points.")
+      display.drawText(1,9, Game.UIMode.DEFAULT_COLOR_STR + "Exp: " + this.getAvatar().getCurExp() + "/" + this.getAvatar().getNextLevelExp());
+      display.drawText(1,10, Game.UIMode.DEFAULT_COLOR_STR + "Level: " + this.getAvatar().getCurLevel());
+      display.drawText(1,11, Game.UIMode.DEFAULT_COLOR_STR + "You have " +this.getAvatar().getSkillPoints()+ " skill points.")
       if (this.getAvatar().getSkillPoints()){
-        display.drawText(1,12,"Press [L] to spend your skill points.")
+        display.drawText(1,12, Game.UIMode.DEFAULT_COLOR_STR + "Press [L] to spend your skill points.")
       }
     },
     moveAvatar: function (dx,dy) {
@@ -328,7 +291,6 @@ Game.UIMode.gamePlay = {
     setCamera: function (sx,sy) {
       this.attr._cameraX = Math.min(Math.max(0,sx),this.getMap().getWidth());
       this.attr._cameraY = Math.min(Math.max(0,sy),this.getMap().getHeight());
-      // Game.renderAll();
     },
     setCameraToAvatar: function () {
       this.setCamera(this.getAvatar().getX(),this.getAvatar().getY());
@@ -339,7 +301,6 @@ Game.UIMode.gamePlay = {
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
       this.setCameraToAvatar();
 
-      //make some enemies
       for (var i = 0; i < 40; i++) {
         this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());
@@ -355,34 +316,62 @@ Game.UIMode.gamePlay = {
 };
 Game.UIMode.gameWin = {
     enter: function(){
-      // console.log("Game.UIMode.gameWin enter");
+
     },
     exit: function() {
-      // console.log("Game.UIMode.gameWin exit");
+
     },
     handleInput: function(){
-      // console.log("Game.UIMode.gameWin handleIndput");
+
     },
     renderOnMain: function(display){
-      // console.log("Game.UIMode.gameWin rendrOnMain");
       display.clear();
-      display.drawText(0, 0, "You win!");
+      display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR+"You win!");
     }
 };
 Game.UIMode.gameLose = {
     enter: function(){
-      // console.log("Game.UIMode.gameStart enter");
+
     },
     exit: function() {
-      // console.log("Game.UIMode.gameStart exit");
+
     },
     handleInput: function(){
-      // console.log("Game.UIMode.gameStart handleIndput");
+
     },
     renderOnMain: function(display){
-      // console.log("Game.UIMode.gameStart rendrOnMain");
       display.clear();
-      display.drawText(0, 0, "You lose!");
+      display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR+"You lose!");
+    }
+};
+Game.UIMode.textReading = {
+    _storedKeyBinding: '',
+    _text: '',
+    enter: function(){
+      this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
+      Game.KeyBinding.setKeyBinding('textReading');
+      Game.renderAll();
+    },
+    exit: function() {
+      Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
+      Game.renderAll();
+    },
+    handleInput: function(eventType, evt){
+      var actionBinding = Game.KeyBinding.getInputBinding(inputType,inputData);
+      if (!actionBinding){
+        return false;
+      }
+      return false;
+    },
+    renderOnMain: function(display){
+      var dims = Game.util.getDisplayDim(display);
+      display.drawText(1, 2, DEFAULT_COLOR_STR+"text is " + this._text);
+    },
+    getText: function(){
+      return this._text;
+    },
+    setText: function(t){
+      this._text = t;
     }
 };
 
