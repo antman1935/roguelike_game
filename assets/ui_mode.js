@@ -60,22 +60,12 @@ Game.UIMode.gamePersistence = {
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
         var state_data = JSON.parse(json_state_data);
 
-        Game.DATASTORE = {};
-        Game.DATASTORE.MAP = {};
-        Game.DATASTORE.ENTITY = {};
+        this._resetGameDataStructures();
 
         Game.UIMode.gamePlay.attr = state_data.GAME_PLAY;
         Game.Message.attr = state_data.MESSAGE;
         this._storedKeyBinding = state_data.KEY_BINDING_SET;
 
-        Game.initializeTimeEngine();
-        for (var schedItemId in state_data.SCHEDULE) {
-          if (state_data.SCHEDULE.hasOwnProperty(schedItemId)) {
-            if (Game.DATASTORE.ENTITY.hasOwnProperty(schedItemId)) {
-              Game.Scheduler.add(Game.DATASTORE.ENTITY[schedItemId], true, state_data.SCHEDULE[schedItemId]);
-            }
-          }
-        }
         Game.Scheduler._queue._time = state_data.SCHEDULE_TIME;
 
         //game level
@@ -100,20 +90,45 @@ Game.UIMode.gamePersistence = {
             Game.DATASTORE.ENTITY[entityId].fromJSON(state_data.ENTITY[entityId]); // restores entity attr
           }
         }
+
+        // items
+        for (var itemId in state_data.ITEM) {
+          if (state_data.ITEM.hasOwnProperty(itemId)) {
+            var itemAttr = JSON.parse(state_data.ITEM[itemId]);
+            var newI = Game.ItemGenerator.create(itemAttr._generator_template_key,itemAttr._id);
+            Game.DATASTORE.ITEM[itemId] = newI;
+            Game.DATASTORE.ITEM[itemId].fromJSON(state_data.ITEM[itemId]);
+        }
+      }
+
+      //schedule
+      Game.initializeTimeEngine();
+      for (var schedItemId in state_data.SCHEDULE) {
+        if (state_data.SCHEDULE.hasOwnProperty(schedItemId)) {
+          if (Game.DATASTORE.ENTITY.hasOwnProperty(schedItemId)) {
+            Game.Scheduler.add(Game.DATASTORE.ENTITY[schedItemId], true, state_data.SCHEDULE[schedItemId]);
+          }
+        }
+      }
+
         Game.Message.sendMessage("Game loaded.");
         Game.switchUIMode("gamePlay");
         Game.KeyBinding.informPlayer();
       }
     },
     newGame: function () {
-      Game.DATASTORE = {};
-      Game.DATASTORE.ENTITY = {};
-      Game.DATASTORE.MAP = {};
-      Game.initializeTimeEngine();
+      this._resetGameDataStructures();
       Game.setRandomSeed(5 + Math.floor(Game.TRANSIENT_RNG.getUniform() * 100000));
       Game.UIMode.gamePlay.setupNewGame();
       Game.Message.sendMessage("New game started.");
       Game.switchUIMode("gamePlay");
+    },
+    _resetGameDataStructures: function(){
+      Game.DATASTORE = {};
+      Game.DATASTORE.MAP = {};
+      Game.DATASTORE.ENTITY = {};
+      Game.DATASTORE.ITEM = {};
+      Game.initializeTimingEngine();
     },
     localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
   	   try {
@@ -316,6 +331,7 @@ Game.UIMode.gamePlay = {
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
       this.setCameraToAvatar();
 
+      var test = Game.ItemGenerator.create('rock');
       for (var i = 0; i < 40; i++) {
         this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());

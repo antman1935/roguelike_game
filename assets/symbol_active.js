@@ -79,3 +79,7 @@ Game.SymbolActive.prototype.toJSON = function () {
 Game.SymbolActive.prototype.fromJSON = function (json) {
   Game.UIMode.gamePersistence.BASE_fromJSON.call(this, json);
 };
+
+Game.SymbolActive.prototype.getId = function(){
+  return this.attr._id;
+};

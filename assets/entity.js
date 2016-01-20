@@ -26,9 +26,6 @@ Game.Entity.prototype.destroy = function(){
 Game.Entity.prototype.getExp = function(){
   return this.attr._exp;
 };
-Game.Entity.prototype.getId = function(){
-  return this.attr._id;
-};
 Game.Entity.prototype.getMap = function(){
   return Game.DATASTORE.MAP[this.attr._mapId];
 };
