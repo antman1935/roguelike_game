@@ -12,7 +12,6 @@ Game.Map = function (mapTileSetName, presetId) {
     _height: this._tiles[0].length,
     _entitiesByLocation: {},
     _locationsByEntity: {},
-    _rememberedCoords: {},
     _removedWalls: {}
   };
 
@@ -96,11 +95,14 @@ Game.Map.prototype.getTile = function (x_or_xy,y) {
   return this._tiles[useX][useY] || Game.Tile.nullTile;
 };
 
-Game.Map.prototype.renderOn = function (display,camX,camY, showEntities, showTiles, maskRendered, memeoryOnly) {
-  var entitiesVisible = (showEntities !== undefined) ? showEntities : true;
-  var tilesVisible = (showTiles !== undefined) ? showTiles : true;
-  var isMasked = (maskRendered !== undefined) ? maskRendered : false;
-  var filterForRemembered = (memeoryOnly !== undefined) ? memeoryOnly : true;
+Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
+  var opt = renderOptions || {};
+
+  var checkCellVisibility = opt.visibleCells !== undefined;
+  var visibleCells = opt.visibleCells || {};
+  var entitiesVisible = (opt.showEntities !== undefined) ? opt.showEntities : true;
+  var tilesVisible = (opt.showTiles !== undefined) ? opt.showTiles : true;
+  var isMasked = (opt.maskRendered !== undefined) ? opt.maskRendered : false;
 
   var dims = Game.util.getDisplayDim(display);
   var xStart = camX-Math.round(dims.w/2);
@@ -111,8 +113,8 @@ Game.Map.prototype.renderOn = function (display,camX,camY, showEntities, showTil
     for (var y = 0; y < dims.h; y++) {
       // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
       var mapPos = {x:x + xStart, y:y + yStart};
-      if (filterForRemembered){
-        if (! this.attr._rememberedCoords[mapPos.x+','+mapPos.y]){
+      if (checkCellVisibility){
+        if (! visibleCells[mapPos.x+','+mapPos.y]){
           display.drawText(x, y, '%c{#000}%b{#000}A');
           continue;
         }

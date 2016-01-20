@@ -269,9 +269,12 @@ Game.UIMode.gamePlay = {
     renderOnMain: function(display){
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY, false, true, true);
-      this.getMap().renderFovOn(display, this.attr._cameraX, this.attr._cameraY, this.getAvatar().getSightRadius());
-      this.getMap().rememberCoords(this.getMap().renderFovOn(display, this.attr._cameraX, this.attr._cameraY, this.getAvatar().getSightRadius()));
+      this.getMap().renderOn(display,this.attr._cameraX,this.attr._cameraY,
+        {showEntities:false,showTiles:true,maskRendered:true,visibleCells:this.getAvatar().getRememberedCoordsForMap()});
+      var seenCells = this.getAvatar().getVisibleCells();
+      this.getMap().renderOn(display,this.attr._cameraX,this.attr._cameraY,
+        {showEntities:true,showTiles:true,visibleCells:seenCells});
+      this.getAvatar().rememberCoords(seenCells);
     },
     renderAvatarInfo: function (display) {
       var fg = Game.UIMode.DEFAULT_COLOR_FG;

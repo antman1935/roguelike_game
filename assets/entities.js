@@ -11,7 +11,7 @@ Game.EntityGenerator.learn({
   fg: '#dda',
   maxHp: Game.BASE_PLAYER_ATTRIBUTES.maxHp,
   maxSp: Game.BASE_PLAYER_ATTRIBUTES.maxSp,
-  mixins: ["Sight", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
+  mixins: ["MapMemory", "Sight", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
 });
 
 Game.EntityGenerator.learn({
