@@ -273,7 +273,7 @@ Game.UIMode.gamePlay = {
         {showEntities:false,showTiles:true,maskRendered:true,visibleCells:this.getAvatar().getRememberedCoordsForMap()});
       var seenCells = this.getAvatar().getVisibleCells();
       this.getMap().renderOn(display,this.attr._cameraX,this.attr._cameraY,
-        {showEntities:true,showTiles:true,visibleCells:seenCells});
+        {showEntities:true,showTiles:true,visibleCells:seenCells, secondCall: true});
       this.getAvatar().rememberCoords(seenCells);
     },
     renderAvatarInfo: function (display) {

@@ -103,6 +103,7 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
   var entitiesVisible = (opt.showEntities !== undefined) ? opt.showEntities : true;
   var tilesVisible = (opt.showTiles !== undefined) ? opt.showTiles : true;
   var isMasked = (opt.maskRendered !== undefined) ? opt.maskRendered : false;
+  var fovRender = (opt.secondCall !== undefined) ? opt.secondCall : false;
 
   var dims = Game.util.getDisplayDim(display);
   var xStart = camX-Math.round(dims.w/2);
@@ -115,7 +116,9 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
       var mapPos = {x:x + xStart, y:y + yStart};
       if (checkCellVisibility){
         if (! visibleCells[mapPos.x+','+mapPos.y]){
-          display.drawText(x, y, '%c{#000}%b{#000}A');
+          if (! fovRender){
+            display.drawText(x, y, '%c{#000}%b{#000}A');
+          }
           continue;
         }
       }
