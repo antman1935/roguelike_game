@@ -243,19 +243,19 @@ Game.UIMode.gamePlay = {
         }else if(t.isDiggable()){
           tookTurn = this.breakWall(useX, useY);
         }else{
-          this.raiseEntityEvent('walkForbidden', {targert: t});
+          this.raiseSymbolActiveEvent('walkForbidden', {targert: t});
         }
       }
 
       if (tookTurn){
-        this.getAvatar().raiseEntityEvent('actionDone');
+        this.getAvatar().raiseSymbolActiveEvent('actionDone');
         Game.Message.ageMessages();
         return true;
       }
     },
     breakWall: function(useX, useY){
       var num = Object.keys(this.getMap().attr._removedWalls).length;
-      this.getAvatar().raiseEntityEvent('removeWall', {wallPos:{x:useX, y:useY}});
+      this.getAvatar().raiseSymbolActiveEvent('removeWall', {wallPos:{x:useX, y:useY}});
       if (num < Object.keys(this.getMap().attr._removedWalls).length){
         return true;
       }
@@ -263,7 +263,7 @@ Game.UIMode.gamePlay = {
       return false;
     },
     avatarWait: function(){
-      this.getAvatar().raiseEntityEvent('wait');
+      this.getAvatar().raiseSymbolActiveEvent('wait');
       return true;
     },
     renderOnMain: function(display){
@@ -293,7 +293,7 @@ Game.UIMode.gamePlay = {
       }
     },
     moveAvatar: function (pdx,pdy) {
-      var moveResp = this.getAvatar().raiseEntityEvent('adjacentMove',{dx:pdx,dy:pdy});
+      var moveResp = this.getAvatar().raiseSymbolActiveEvent('adjacentMove',{dx:pdx,dy:pdy});
       if (moveResp.madeAdjacentMove && moveResp.madeAdjacentMove[0]){
         this.setCameraToAvatar();
         return true;

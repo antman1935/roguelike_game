@@ -15,12 +15,12 @@ Game.EntityMixin.WalkerCorporeal = {
           var targetY = this.getY() + dy;
 
           if ((targetX < 0) || (targetX >= map.getWidth()) || (targetY < 0) || (targetY >= map.getHeight())) {
-            this.raiseEntityEvent('walkForbidden',{target:Game.Tile.nullTile});
+            this.raiseSymbolActiveEvent('walkForbidden',{target:Game.Tile.nullTile});
             return {madeAdjacentMove:false};
           }
 
           if (map.getEntity(targetX,targetY)) { // can't walk into spaces occupied by other entities
-            this.raiseEntityEvent('bumpEntity',{actor:this,recipient:map.getEntity(targetX,targetY)});
+            this.raiseSymbolActiveEvent('bumpEntity',{actor:this,recipient:map.getEntity(targetX,targetY)});
             // NOTE: should bumping an entity always take a turn? might have to get some return data from the event (once event return data is implemented)
             return {madeAdjacentMove:true};
           }
@@ -34,7 +34,7 @@ Game.EntityMixin.WalkerCorporeal = {
             }
             return {madeAdjacentMove:true};
           } else {
-            this.raiseEntityEvent('walkForbidden',{target:targetTile});
+            this.raiseSymbolActiveEvent('walkForbidden',{target:targetTile});
           }
           return {madeAdjacentMove:false};
       }
@@ -104,11 +104,11 @@ Game.EntityMixin.HitPoints = {
       'attacked': function(evtData){
 
         this.takeHits(evtData.attackDamage);
-        this.raiseEntityEvent('damagedBy', {damager:evtData.attacker, damageAmount:evtData.attackDamage});
-        evtData.attacker.raiseEntityEvent('dealtDamage',{damagee:this,damageAmount:evtData.attackDamage});
+        this.raiseSymbolActiveEvent('damagedBy', {damager:evtData.attacker, damageAmount:evtData.attackDamage});
+        evtData.attacker.raiseSymbolActiveEvent('dealtDamage',{damagee:this,damageAmount:evtData.attackDamage});
         if (this.getCurHp() <= 0){
-          this.raiseEntityEvent('killed', {entKilled: this, killedBy:evtData.attacker});
-          evtData.attacker.raiseEntityEvent('madeKill', {entKilled:this, killedBy:evtData.attacker});
+          this.raiseSymbolActiveEvent('killed', {entKilled: this, killedBy:evtData.attacker});
+          evtData.attacker.raiseSymbolActiveEvent('madeKill', {entKilled:this, killedBy:evtData.attacker});
         }
       },
       'killed': function(evtData){
@@ -152,19 +152,19 @@ Game.EntityMixin.MeleeAttacker = {
     },
     listeners: {
       'bumpEntity': function(evtData){
-        var hitValResp = this.raiseEntityEvent('calcAttackHit');
-        var avoidValResp = evtData.recipient.raiseEntityEvent('calcAttackAvoid');
+        var hitValResp = this.raiseSymbolActiveEvent('calcAttackHit');
+        var avoidValResp = evtData.recipient.raiseSymbolActiveEvent('calcAttackAvoid');
         Game.util.cdebug(avoidValResp);
         var hitVal = Game.util.compactNumberArray_add(hitValResp.attackHit);
         var avoidVal = Game.util.compactNumberArray_add(avoidValResp.attackAvoid);
         if (ROT.RNG.getUniform()*(hitVal+avoidVal) > avoidVal) {
-          var hitDamageResp = this.raiseEntityEvent('calcAttackDamage');
-          var damageMitigateResp = evtData.recipient.raiseEntityEvent('calcDamageMitigation');
+          var hitDamageResp = this.raiseSymbolActiveEvent('calcAttackDamage');
+          var damageMitigateResp = evtData.recipient.raiseSymbolActiveEvent('calcDamageMitigation');
 
-          evtData.recipient.raiseEntityEvent('attacked',{attacker:evtData.actor,attackDamage:Game.util.compactNumberArray_add(hitDamageResp.attackDamage) - Game.util.compactNumberArray_add(damageMitigateResp.damageMitigation)});
+          evtData.recipient.raiseSymbolActiveEvent('attacked',{attacker:evtData.actor,attackDamage:Game.util.compactNumberArray_add(hitDamageResp.attackDamage) - Game.util.compactNumberArray_add(damageMitigateResp.damageMitigation)});
         } else {
-          evtData.recipient.raiseEntityEvent('attackAvoided',{attacker:evtData.actor,recipient:evtData.recipient});
-          evtData.actor.raiseEntityEvent('attackMissed',{attacker:evtData.actor,recipient:evtData.recipient});
+          evtData.recipient.raiseSymbolActiveEvent('attackAvoided',{attacker:evtData.actor,recipient:evtData.recipient});
+          evtData.actor.raiseSymbolActiveEvent('attackMissed',{attacker:evtData.actor,recipient:evtData.recipient});
         }
         this.setCurrentActionDuration(this.attr._MeleeAttacker_attr.attackActionDuration);
       },
@@ -367,10 +367,10 @@ Game.EntityMixin.WanderActor = {
   act: function () {
     Game.TimeEngine.lock();
     var moveDeltas = this.getMoveDeltas();
-    this.raiseEntityEvent('adjacentMove',{dx:moveDeltas.x,dy:moveDeltas.y});
+    this.raiseSymbolActiveEvent('adjacentMove',{dx:moveDeltas.x,dy:moveDeltas.y});
     Game.Scheduler.setDuration(this.getCurrentActionDuration());
     this.setCurrentActionDuration(this.getBaseActionDuration() + Game.util.randomInt(-10, 10));
-    this.raiseEntityEvent('actionDone');
+    this.raiseSymbolActiveEvent('actionDone');
     Game.TimeEngine.unlock();
   }
 };
@@ -592,7 +592,7 @@ Game.EntityMixin.WanderChaserActor = {
   },
   getMoveDeltas: function () {
     var avatar = Game.getAvatar();
-    var senseResp = this.raiseEntityEvent('senseForEntity',{senseForEntity:avatar});
+    var senseResp = this.raiseSymbolActiveEvent('senseForEntity',{senseForEntity:avatar});
     if (Game.util.compactBooleanArray_or(senseResp.entitySensed)) {
 
       // build a path instance for the avatar
@@ -625,10 +625,10 @@ Game.EntityMixin.WanderChaserActor = {
   act: function () {
     Game.TimeEngine.lock();
     var moveDeltas = this.getMoveDeltas();
-    this.raiseEntityEvent('adjacentMove',{dx:moveDeltas.x,dy:moveDeltas.y});
+    this.raiseSymbolActiveEvent('adjacentMove',{dx:moveDeltas.x,dy:moveDeltas.y});
     Game.Scheduler.setDuration(this.getCurrentActionDuration());
     this.setCurrentActionDuration(this.getBaseActionDuration()+Game.util.randomInt(-10,10));
-    this.raiseEntityEvent('actionDone');
+    this.raiseSymbolActiveEvent('actionDone');
     Game.TimeEngine.unlock();
   }
 };
