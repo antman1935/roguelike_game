@@ -269,10 +269,8 @@ Game.UIMode.gamePlay = {
     renderOnMain: function(display){
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY);
-      display.drawText(0, 0, "Press [ENTER] to win.", fg, bg);
-      display.drawText(0, 1, "Press [ESC] to lose.", fg, bg);
-      display.drawText(0, 2, "Press [=] to enter the save/load menu.", fg, bg);
+      this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY, false, true, true);
+      this.getMap().renderFovOn(display, this.attr._cameraX, this.attr._cameraY, this.getAvatar().getSightRadius());
     },
     renderAvatarInfo: function (display) {
       var fg = Game.UIMode.DEFAULT_COLOR_FG;

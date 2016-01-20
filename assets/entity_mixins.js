@@ -217,10 +217,12 @@ Game.EntityMixin.PlayerMessager = {
       'damagedBy': function(evtData){
         Game.Message.sendMessage("The " +evtData.damager.getName()+ " hit you for " + evtData.damageAmount);
         Game.renderMessage();
+        Game.Message.ageMessages();
       },
       'killed': function(evtData){
         Game.Message.sendMessage("You were killed by the " +evtData.killedBy.getName());
         Game.renderMessage();
+        Game.Message.ageMessages();
       }
     }
   }
@@ -244,6 +246,7 @@ Game.EntityMixin.PlayerActor = {
         Game.Scheduler.setDuration(this.getCurrentActionDuration());
         this.setCurrentActionDuration(this.getBaseActionDuration(), Game.util.randomInt(-5, 5));
         setTimeout(function() {Game.TimeEngine.unlock();}, 1);
+        Game.renderMessage();
       }
     }
   },
@@ -268,7 +271,8 @@ Game.EntityMixin.PlayerActor = {
   act: function(){
     if (this.isActing()) {return;}
     this.isActing(true);
-    Game.renderAll()
+    Game.renderMain();
+    Game.renderAvatar();
     Game.TimeEngine.lock();
     this.isActing(false);
   }
@@ -405,3 +409,23 @@ Game.EntityMixin.PlayerSkills = {
     }
   }
 };
+
+Game.EntityMixin.Sight = {
+  META: {
+    mixinName: 'Sight',
+    mixinGroup: 'Sense',
+    stateNamespace: '_Sight_attr',
+    stateModel: {
+      sightRadius: 3
+    },
+    init: function(template){
+      this.attr._Sight_attr.sightRadius = template.sightRadius || 3;
+    }
+  },
+  getSightRadius: function(){
+    return this.attr._Sight_attr.sightRadius;
+  },
+  setSightRadius: function(n){
+    this.attr._Sight_attr.sightRadius = n;
+  }
+}
