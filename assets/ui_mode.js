@@ -346,7 +346,6 @@ Game.UIMode.gamePlay = {
         this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
       }
       this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
-      console.log(itemPos);
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
