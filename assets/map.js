@@ -12,6 +12,7 @@ Game.Map = function (mapTileSetName, presetId) {
     _height: this._tiles[0].length,
     _entitiesByLocation: {},
     _locationsByEntity: {},
+    _itemsByLocation: {},
     _removedWalls: {}
   };
 
@@ -104,6 +105,8 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
   var tilesVisible = (opt.showTiles !== undefined) ? opt.showTiles : true;
   var isMasked = (opt.maskRendered !== undefined) ? opt.maskRendered : false;
   var fovRender = (opt.secondCall !== undefined) ? opt.secondCall : false;
+  var showVisibleItems = (opt.showVisibleItems !== undefined) ? opt.showVisibleItems : true;
+  var showMaskedItems = (opt.showMaskedItems !== undefined) ? opt.showMaskedItems : false;
 
   var dims = Game.util.getDisplayDim(display);
   var xStart = camX-Math.round(dims.w/2);
@@ -114,8 +117,9 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
     for (var y = 0; y < dims.h; y++) {
       // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
       var mapPos = {x:x + xStart, y:y + yStart};
+      var mapCoord = mapPos.x + ',' + mapPos.y;
       if (checkCellVisibility){
-        if (! visibleCells[mapPos.x+','+mapPos.y]){
+        if (! visibleCells[mapCoord]){
           if (! fovRender){
             display.drawText(x, y, '%c{#000}%b{#000}A');
           }
@@ -127,10 +131,25 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
         if (tile.getName() == 'nullTile') {
           tile = Game.Tile.wallTile;
         }
-        if (this.attr._removedWalls[mapPos.x+","+mapPos.y]){
+        if (this.attr._removedWalls[mapCoord]){
           tile = Game.Tile.floorTile;
         }
         tile.draw(display,x,y,isMasked);
+      }
+
+      var items = this.getItems(mapPos);
+      if (items.length == 1) {
+        if (showVisibleItems && visibleCells[mapCoord]) {
+          items[0].draw(display,x,y);
+        } else if (showMaskedItems && maskedCells[mapCoord]) {
+          items[0].draw(display,x,y,true);
+        }
+      } else if (items.length > 1) {
+        if (showVisibleItems && visibleCells[mapCoord]) {
+          Game.Symbol.ITEM_PILE.draw(display,x,y);
+        } else if (showMaskedItems && maskedCells[mapCoord]) {
+          Game.Symbol.ITEM_PILE.draw(display,x,y,true);
+        }
       }
 
       if (entitiesVisible){
@@ -166,6 +185,8 @@ Game.Map.prototype.renderFovOn = function (display,camX,camY,radius) {
           tile = Game.Tile.wallTile;
         }
         tile.draw(display,x,y);
+
+
         var ent = this.getEntity(mapPos);
         if (ent) {
           ent.draw(display,x,y);
@@ -243,4 +264,49 @@ Game.Map.prototype.toJSON = function(){
 
 Game.Map.prototype.fromJSON = function(json){
   Game.UIMode.gamePersistence.BASE_fromJSON.call(this, json);
+};
+
+Game.Map.prototype.addItem = function (itm,pos) {
+    var loc = pos.x+","+pos.y;
+    if (! this.attr._itemsByLocation[loc]) {
+      this.attr._itemsByLocation[loc] = [];
+    }
+    this.attr._itemsByLocation[loc].push(itm.getId());
+};
+
+Game.Map.prototype.getItems = function (x_or_pos,y) {
+  var useX = x_or_pos,useY=y;
+  if (typeof x_or_pos == 'object') {
+    useX = x_or_pos.x;
+    useY = x_or_pos.y;
+  }
+  var itemIds = this.attr._itemsByLocation[useX+','+useY];
+  if (itemIds) { return itemIds.map(function(iid) { return Game.DATASTORE.ITEM[iid]; }); }
+  return  [];
+};
+
+Game.Map.prototype.extractItemAt = function (itm_or_idx,x_or_pos,y) {
+  var useX = x_or_pos,useY=y;
+  if (typeof x_or_pos == 'object') {
+    useX = x_or_pos.x;
+    useY = x_or_pos.y;
+  }
+  var itemIds = this.attr._itemsByLocation[useX+','+useY];
+  if (! itemIds) { return false; }
+
+  var item = false, extractedId = '';
+  if (Number.isInteger(itm_or_idx)) {
+    extractedId = itemIds.splice(itm_or_idx,1);
+    item = Game.DATASTORE.ITEM[extractedId];
+  } else {
+    var idToFind = itm_or_idx.getId();
+    for (var i = 0; i < itemIds.length; i++) {
+      if (idToFind === itemIds[i]) {
+        extractedId = itemIds.splice(i,1);
+        item = Game.DATASTORE.ITEM[extractedId];
+        break;
+      }
+    }
+  }
+  return item;
 };

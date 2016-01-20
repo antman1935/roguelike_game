@@ -29,3 +29,4 @@ Game.Symbol.prototype.draw = function (display,x,y,isMasked) {
 
 Game.Symbol.AVATAR = new Game.Symbol({chr: '@', fg:'#dda'});
 Game.Symbol.NULL_SYMBOL = new Game.Symbol();
+Game.Symbol.ITEM_PILE = new Game.Symbol({chr:'&',fg:'#dcc'});

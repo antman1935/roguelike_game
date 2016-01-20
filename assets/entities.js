@@ -35,7 +35,7 @@ Game.EntityGenerator.learn({
 
 Game.EntityGenerator.learn({
   name: 'angry squirrel',
-  chr: '&',
+  chr: String.fromCharCode(163),
   fg: '#aaa',
   exp: 3,
   maxHp: 3,

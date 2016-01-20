@@ -128,7 +128,7 @@ Game.UIMode.gamePersistence = {
       Game.DATASTORE.MAP = {};
       Game.DATASTORE.ENTITY = {};
       Game.DATASTORE.ITEM = {};
-      Game.initializeTimingEngine();
+      Game.initializeTimeEngine();
     },
     localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
   	   try {
@@ -253,12 +253,15 @@ Game.UIMode.gamePlay = {
         var useX = this.getAvatar().getX() + dx;
         var useY = this.getAvatar().getY() + dy;
         var t = this.getMap().getTile(useX, useY);
+        if (t == Game.Tile.nullTile){
+
+        }
         if (t.isWalkable()){
           tookTurn = this.moveAvatar(dx, dy);
         }else if(t.isDiggable()){
           tookTurn = this.breakWall(useX, useY);
         }else{
-          this.raiseSymbolActiveEvent('walkForbidden', {targert: t});
+          this.getAvatar().raiseSymbolActiveEvent('walkForbidden', {target: t});
         }
       }
 
@@ -331,14 +334,19 @@ Game.UIMode.gamePlay = {
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
       this.setCameraToAvatar();
 
-      var test = Game.ItemGenerator.create('rock');
+      var itemPos = '';
       for (var i = 0; i < 40; i++) {
         this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('angry squirrel'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('attack slug'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('goblin'), this.getMap().getRandomWalkableLocation());
+
+        itemPos = this.getMap().getRandomWalkableLocation();
+        this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
       }
+      this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
+      console.log(itemPos);
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
