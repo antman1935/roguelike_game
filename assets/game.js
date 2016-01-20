@@ -166,5 +166,8 @@ var Game = {
      this._randomSeed = s;
      this.DATASTORE[Game.UIMode.gamePersistence.RANDOM_SEED_KEY] = this._randomSeed;
      ROT.RNG.setSeed(this._randomSeed);
-   }
+   },
+   getAvatar: function () {
+    return Game.UIMode.gamePlay.getAvatar();
+   },
 };
