@@ -3,24 +3,42 @@ Game.EntityMixin = {};
 Game.EntityMixin.WalkerCorporeal = {
   META: {
     mixinName: 'WalkerCorporeal',
-    mixinGroup: 'Walker'
-  },
-  tryWalk: function(map, dx, dy){
-    var targetX = Math.min(Math.max(0, this.getX() + dx), map.getWidth()-1);
-    var targetY = Math.min(Math.max(0, this.getY() + dy), map.getHeight()-1);
-    if (map.getEntity(targetX, targetY)){
-      this.raiseEntityEvent('bumpEntity', {actor:this, recipient:map.getEntity(targetX, targetY)});
-      return true;
-    }
-    if (map.getTile(targetX, targetY).isWalkable()){
-      this.setPos(targetX, targetY);
-      var myMap = this.getMap();
-      if (myMap){
-        myMap.updateEntityLocation(this);
+    mixinGroup: 'Walker',
+    mixinGroup: 'Walker',
+    listeners: {
+      'adjacentMove': function(evtData) {
+          // console.log('listener adjacentMove');
+          // console.dir(JSON.parse(JSON.stringify(evtData)));
+          var map = this.getMap();
+          var dx=evtData.dx,dy=evtData.dy;
+          var targetX = this.getX() + dx;
+          var targetY = this.getY() + dy;
+
+          if ((targetX < 0) || (targetX >= map.getWidth()) || (targetY < 0) || (targetY >= map.getHeight())) {
+            this.raiseEntityEvent('walkForbidden',{target:Game.Tile.nullTile});
+            return {madeAdjacentMove:false};
+          }
+
+          if (map.getEntity(targetX,targetY)) { // can't walk into spaces occupied by other entities
+            this.raiseEntityEvent('bumpEntity',{actor:this,recipient:map.getEntity(targetX,targetY)});
+            // NOTE: should bumping an entity always take a turn? might have to get some return data from the event (once event return data is implemented)
+            return {madeAdjacentMove:true};
+          }
+          
+          var targetTile = map.getTile(targetX,targetY);
+          if (targetTile.isWalkable()) {
+            this.setPos(targetX,targetY);
+            var myMap = this.getMap();
+            if (myMap) {
+              myMap.updateEntityLocation(this);
+            }
+            return {madeAdjacentMove:true};
+          } else {
+            this.raiseEntityEvent('walkForbidden',{target:targetTile});
+          }
+          return {madeAdjacentMove:false};
       }
-      return true;
     }
-    return false;
   }
 };
 Game.EntityMixin.Chronicle = {
@@ -309,9 +327,7 @@ Game.EntityMixin.WanderActor = {
   act: function () {
     Game.TimeEngine.lock();
     var moveDeltas = this.getMoveDeltas();
-    if (this.hasMixin('Walker')) { // NOTE: this pattern suggests that maybe tryWalk shoudl be converted to an event
-      this.tryWalk(this.getMap(), moveDeltas.x, moveDeltas.y);
-    }
+    this.raiseEntityEvent('adjacentMove',{dx:moveDeltas.x,dy:moveDeltas.y});
     Game.Scheduler.setDuration(this.getCurrentActionDuration());
     this.setCurrentActionDuration(this.getBaseActionDuration() + Game.util.randomInt(-10, 10));
     this.raiseEntityEvent('actionDone');

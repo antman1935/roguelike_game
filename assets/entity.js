@@ -58,12 +58,20 @@ Game.Entity.prototype.hasMixin = function(mixin){
   }
 };
 Game.Entity.prototype.raiseEntityEvent = function(evtLabel, evtData){
+  var response = {};
   for (var i = 0; i < this._mixins.length; i++) {
     var mixin = this._mixins[i];
     if (mixin.META.listeners && mixin.META.listeners[evtLabel]){
-      mixin.META.listeners[evtLabel].call(this, evtData);
+      var resp = mixin.META.listeners[evtLabel].call(this, evtData);
+      for (var respKey in resp) {
+        if (resp.hasOwnProperty(respKey)) {
+          if (! response[respKey]) {response[respKey] = [];}
+          response[respKey].push(resp[respKey]);
+        }
+      }
     }
   }
+  return response;
 };
 Game.Entity.prototype.destroy = function(){
   //remove from map (turn into red X)
@@ -82,7 +90,7 @@ Game.Entity.prototype.getMap = function(){
 };
 Game.Entity.prototype.getMapId = function(){
   return this.attr._mapId;
-}
+};
 Game.Entity.prototype.setMap = function(map){
   this.attr._mapId = map.getId();
 };
