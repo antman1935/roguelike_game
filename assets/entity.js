@@ -2,16 +2,16 @@ Game.DATASTORE.ENTITY = {};
 
 Game.Entity = function(template){
   template = template || {};
-  Game.Symbol.call(this, template);
-  if (!('attr' in this)) { this.attr = {}; }
-  this.attr._name = template.name || '';
+  Game.SymbolActive.call(this, template);
+  // if (!('attr' in this)) { this.attr = {}; }
+  // this.attr._name = template.name || '';
   this.attr._x = template.x || 0;
   this.attr._y = template.y || 0;
   this.attr._exp = template.exp || 0;
   this.attr._generator_template_key = template.generator_template_key || '';
   this.attr._mapId = null;
 
-  this.attr._id = template.presetId || Game.util.uniqueId();
+  // this.attr._id = template.presetId || Game.util.uniqueId();
   Game.DATASTORE.ENTITY[this.attr._id] = this;
 
   this._mixinNames = template.mixins || [];
@@ -49,7 +49,7 @@ Game.Entity = function(template){
     }
   }
 };
-Game.Entity.extend(Game.Symbol);
+Game.Entity.extend(Game.SymbolActive);
 Game.Entity.prototype.hasMixin = function(mixin){
   if (typeof mixin == 'object'){
     return this._mixinTracker.hasOwnProperty(mixin.META.mixinName);
