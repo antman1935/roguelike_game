@@ -7,7 +7,7 @@ Game.SymbolActive = function(template){
   this._mixinNames = template.mixins || [];
   this._mixins = [];
   for (var i = 0; i < this._mixinNames.length; i++) {
-    this._mixins.push(Game.EntityMixin[this._mixinNames[i]]);
+    this._mixins.push(this._mixinSet[this._mixinNames[i]]);
   }
 
   this._mixinTracker = {};
