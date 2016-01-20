@@ -12,6 +12,7 @@ Game.Map = function (mapTileSetName, presetId) {
     _height: this._tiles[0].length,
     _entitiesByLocation: {},
     _locationsByEntity: {},
+    _rememberedCoords: {},
     _removedWalls: {}
   };
 
@@ -60,33 +61,13 @@ Game.Map.prototype.getEntitiesNearby = function(radius, x_or_pos, y){
   return foundEnts;
 };
 
-Game.Map.prototype.getEntitiesNearby_LoS = function (radius,x_or_pos,y) {
-  var useX = x_or_pos,useY=y;
-  if (typeof x_or_pos == 'object') {
-    useX = x_or_pos.x;
-    useY = x_or_pos.y;
-  }
-  var entLocs = Object.keys(this.attr._entitiesByLocation);
-  var foundEnts = [];
-  if (entLocs.length < radius*radius*4) {
-    for (var i = 0; i < entLocs.length; i++) {
-      var el = entLocs[i].split(',');
-      if ((Math.abs(el[0]-useX) <= radius) && (Math.abs(el[1]-useY) <= radius)) {
-        foundEnts.push(Game.DATASTORE.ENTITY[this.attr._entitiesByLocation[entLocs[i]]]);
-      }
-    }
-  } else {
-    for (var cx = radius*-1; cx <= radius; cx++) {
-      for (var cy = radius*-1; cy <= radius; cy++) {
-        var entId = this.getEntity(useX+cx,useY+cy);
-        if (entId) {
-          foundEnts.push(Game.DATASTORE.ENTITY[entId]);
-        }
-      }
+Game.Map.prototype.rememberCoords = function(toRemember){
+  for (var coord in toRemember){
+    if (toRemember.hasOwnProperty(coord)){
+      this.attr._rememberedCoords[coord] = true;
     }
   }
-  return foundEnts;
-};
+}
 
 Game.Map.prototype.getId = function(){
   return this.attr._id;
@@ -115,11 +96,11 @@ Game.Map.prototype.getTile = function (x_or_xy,y) {
   return this._tiles[useX][useY] || Game.Tile.nullTile;
 };
 
-Game.Map.prototype.renderOn = function (display,camX,camY, showEntities, showTiles, maskRendered) {
+Game.Map.prototype.renderOn = function (display,camX,camY, showEntities, showTiles, maskRendered, memeoryOnly) {
   var entitiesVisible = (showEntities !== undefined) ? showEntities : true;
   var tilesVisible = (showTiles !== undefined) ? showTiles : true;
   var isMasked = (maskRendered !== undefined) ? maskRendered : false;
-
+  var filterForRemembered = (memeoryOnly !== undefined) ? memeoryOnly : true;
 
   var dims = Game.util.getDisplayDim(display);
   var xStart = camX-Math.round(dims.w/2);
@@ -130,6 +111,12 @@ Game.Map.prototype.renderOn = function (display,camX,camY, showEntities, showTil
     for (var y = 0; y < dims.h; y++) {
       // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
       var mapPos = {x:x + xStart, y:y + yStart};
+      if (filterForRemembered){
+        if (! this.attr._rememberedCoords[mapPos.x+','+mapPos.y]){
+          display.drawText(x, y, '%c{#000}%b{#000}A');
+          continue;
+        }
+      }
       if (tilesVisible){
         var tile = this.getTile(mapPos);
         if (tile.getName() == 'nullTile') {

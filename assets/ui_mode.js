@@ -271,6 +271,7 @@ Game.UIMode.gamePlay = {
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
       this.getMap().renderOn(display, this.attr._cameraX, this.attr._cameraY, false, true, true);
       this.getMap().renderFovOn(display, this.attr._cameraX, this.attr._cameraY, this.getAvatar().getSightRadius());
+      this.getMap().rememberCoords(this.getMap().renderFovOn(display, this.attr._cameraX, this.attr._cameraY, this.getAvatar().getSightRadius()));
     },
     renderAvatarInfo: function (display) {
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
