@@ -11,7 +11,7 @@ window.onload = function() {
         document.getElementById('wsrl-avatar-display').appendChild(   Game.getDisplay('avatar').getContainer());
         document.getElementById('wsrl-message-display').appendChild(   Game.getDisplay('message').getContainer());
 
-
+        Game.Message.sendMessage("Reach level 10 to win.")
     }
 };
 

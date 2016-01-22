@@ -397,6 +397,9 @@ Game.EntityMixin.PlayerExperience = {
   },
   levelUp: function(){
     this.attr._PlayerExperience_attr.curLevel++;
+    if (this.attr._PlayerExperience_attr.curLevel >= 10){
+      Game.switchUIMode("gameWin");
+    }
     this.attr._PlayerExperience_attr.skillpoints += 1 + Math.floor(this.attr._PlayerExperience_attr.curLevel / 5);
     Game.Message.sendMessage("You're now level " +this.attr._PlayerExperience_attr.curLevel);
   },
