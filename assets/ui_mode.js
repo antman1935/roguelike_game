@@ -220,6 +220,8 @@ Game.UIMode.gamePlay = {
         Game.switchUIMode("gamePersistence");
       }else if (actionBinding.actionKey == "SKILLMENU"){
         Game.switchUIMode("gameSkillMenu");
+      }else if (actionBinding.actionKey == "INVENTORY"){
+        Game.switchUIMode("inventoryMenu");
       }else if (actionBinding.actionKey == "MOVE_DL"){
         dx = -1;
         dy = 1;
@@ -242,6 +244,18 @@ Game.UIMode.gamePlay = {
         dy = -1;
       }else if (actionBinding.actionKey == "MOVE_WAIT"){
         tookTurn = this.avatarWait();
+      }else if (actionBinding.actionKey == "PICK_UP"){
+        console.log("Picking up...");
+        var useX = this.getAvatar().getX();
+        var useY = this.getAvatar().getY();
+        var itemStack = this.getMap().getItems(useX, useY);
+        console.dir(itemStack);
+        if (itemStack.length == 1){
+          this.getAvatar().addItemToInventory(itemStack[0].pickUp());
+        }else if (itemStack.length > 1){
+          console.log('menu');
+          Game.switchUIMode("lootMenu", {enterData: itemStack});
+        }
       }else if (actionBinding.actionKey == "CHANGE_BINDINGS"){
         Game.KeyBinding.swapToNextKeyBinding();
       }else if (actionBinding.actionKey == 'HELP'){
@@ -344,8 +358,9 @@ Game.UIMode.gamePlay = {
 
         itemPos = this.getMap().getRandomWalkableLocation();
         this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
+        this.getAvatar().addItemToInventory(Game.ItemGenerator.create('rock').pickUp());
       }
-      this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
+      console.dir(itemPos);
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
@@ -503,5 +518,170 @@ Game.UIMode.gameSkillMenu = {
     },
     getAvatar: function() {
       return Game.DATASTORE.ENTITY[this.attr._avatarId];;
+    }
+};
+
+Game.UIMode.lootMenu = {
+    _itemStack: [],
+    _storedKeyBinding: '',
+    enter: function(itemStack){
+      this._itemStack = itemStack;
+      console.dir(this._itemStack);
+      this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
+      Game.KeyBinding.setKeyBinding('inventory');
+      Game.renderAll();
+    },
+    exit: function() {
+      Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
+      Game.switchUIMode("gamePlay");
+      Game.renderAll();
+    },
+    handleInput: function(eventType, evt){
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
+      if (!actionBinding){
+        return false;
+      }
+      var itemSelected = null;
+      if (actionBinding.actionKey == 'CANCEL'){
+        Game.switchUIMode("gamePlay");
+      }else if (actionBinding.actionKey == 'ITEM_0'){
+        itemSelected = 0;
+      }else if (actionBinding.actionKey == 'ITEM_1'){
+        itemSelected = 1;
+      }else if (actionBinding.actionKey == 'ITEM_2'){
+        itemSelected = 2;
+      }else if (actionBinding.actionKey == 'ITEM_3'){
+        itemSelected = 3;
+      }else if (actionBinding.actionKey == 'ITEM_4'){
+        itemSelected = 4;
+      }else if (actionBinding.actionKey == 'ITEM_5'){
+        itemSelected = 5;
+      }else if (actionBinding.actionKey == 'ITEM_6'){
+        itemSelected = 6;
+      }else if (actionBinding.actionKey == 'ITEM_7'){
+        itemSelected = 7;
+      }else if (actionBinding.actionKey == 'ITEM_8'){
+        itemSelected = 8;
+      }else if (actionBinding.actionKey == 'ITEM_9'){
+        itemSelected = 9;
+      }
+      if (itemSelected !== null && this._itemStack[itemSelected] !== undefined){
+        if (this._itemStack.length > itemSelected){
+          Game.UIMode.gamePlay.getAvatar().addItemToInventory(this._itemStack[itemSelected].pickUp())
+          this._itemStack.splice(this._itemStack, 1);
+          Game.renderAll();
+        }
+      }
+      return false;
+    },
+    renderOnMain: function(display){
+      display.clear();
+      for (var i = 0; i < this._itemStack.length; i++) {
+        display.drawText(0, i, Game.UIMode.DEFAULT_COLOR_STR +i+ " - " + this._itemStack[i].getName());
+      }
+    }
+};
+
+Game.UIMode.inventoryMenu = {
+    _storedKeyBinding: '',
+    _text: 'default',
+    _menuY: 0,
+    _renderScrollLimit: 0,
+    inventoryArray: [],
+    itemSelected: -1,
+    enter: function(){
+      this.itemSelected = -1;
+      this.inventoryArray = [];
+      for (var key in Game.UIMode.gamePlay.getAvatar().getInventory()) {
+        if (Game.UIMode.gamePlay.getAvatar().getInventory().hasOwnProperty(key)) {
+          this.inventoryArray.push({name: key, items: Game.UIMode.gamePlay.getAvatar().getInventory()[key]});
+        }
+      }
+      this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
+      Game.KeyBinding.setKeyBinding('inventory');
+      Game.renderAll();
+    },
+    exit: function() {
+      Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
+      Game.renderAll();
+      setTimeout(function() {Game.renderAll();}, 1);
+    },
+    handleInput: function(eventType, evt){
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
+      if (!actionBinding){
+        return false;
+      }
+      if (actionBinding.actionKey == 'CANCEL'){
+        Game.switchUIMode("gamePlay");
+      }else if (actionBinding.actionKey == 'DATA_NAV_UP'){
+        if (this._menuY > 0) {
+          this._menuY--;
+          Game.renderAll();
+          return true;
+        }else{
+          return false;
+        }
+      }else if (actionBinding.actionKey == 'DATA_NAV_DOWN') {
+        if (this._menuY < this.inventoryArray.length - 9) {
+          this._menuY++;
+          Game.renderAll();
+          return true;
+        }else{
+          return false;
+        }
+      }else if (actionBinding.actionKey == 'ITEM_0'){
+        this.itemSelected = 0;
+      }else if (actionBinding.actionKey == 'ITEM_1'){
+        this.itemSelected = 1;
+      }else if (actionBinding.actionKey == 'ITEM_2'){
+        this.itemSelected = 2;
+      }else if (actionBinding.actionKey == 'ITEM_3'){
+        this.itemSelected = 3;
+      }else if (actionBinding.actionKey == 'ITEM_4'){
+        this.itemSelected = 4;
+      }else if (actionBinding.actionKey == 'ITEM_5'){
+        this.itemSelected = 5;
+      }else if (actionBinding.actionKey == 'ITEM_6'){
+        this.itemSelected = 6;
+      }else if (actionBinding.actionKey == 'ITEM_7'){
+        this.itemSelected = 7;
+      }else if (actionBinding.actionKey == 'ITEM_8'){
+        this.itemSelected = 8;
+      }else if (actionBinding.actionKey == 'ITEM_9'){
+        this.itemSelected = 9;
+      }else if (actionBinding.actionKey == 'USE' || actionBinding.actionKey == 'EQUIP' || actionBinding.actionKey == 'DISCARD') {
+        if (this.itemSelected >= 0 && this.itemSelected + this._menuY < this.inventoryArray.length){
+          this.actionBranch(actionBinding.actionKey);
+        }
+        return;
+      }
+      if (this.itemSelected >= 0 && this.itemSelected + this._menuY < this.inventoryArray.length){
+        Game.Message.sendMessage("You've selected " +this.inventoryArray[this.itemSelected + this._menuY].name)
+        Game.renderAll();
+      }
+      return false;
+    },
+    actionBranch: function(actionKey){
+      var success = false;
+      if (actionKey == 'USE'){
+        success = Game.getAvatar().useItem(this.inventoryArray[this.itemSelected + this._menuY].name);
+      }else if (actionKey == 'EQUIP'){
+        success = Game.getAvatar().equipItem(this.inventoryArray[this.itemSelected + this._menuY].name);
+      }else if (actionKey == 'DISCARD'){
+        success = Game.getAvatar().discardItem(this.inventoryArray[this.itemSelected + this._menuY].name);
+      }
+      if (success){
+        if (this.inventoryArray[this.itemSelected + this._menuY].items.length == 0){
+          this.inventoryArray.splice(this.itemSelected + this._menuY, 1);
+          this.itemSelected = -1;
+        }
+        Game.renderAll();
+      }
+    },
+    renderOnMain: function(display){
+      display.clear();
+      for (var i = 0; i < Math.min(10, this.inventoryArray.length); i++) {
+        display.drawText(0, i, Game.UIMode.DEFAULT_COLOR_STR +i+ " - " + this.inventoryArray[i + this._menuY].name + " (" + this.inventoryArray[i + this._menuY].items.length + ")");
+      }
     }
 };

@@ -12,7 +12,7 @@ Game.EntityGenerator.learn({
   sightRadius: 5,
   maxHp: Game.BASE_PLAYER_ATTRIBUTES.maxHp,
   maxSp: Game.BASE_PLAYER_ATTRIBUTES.maxSp,
-  mixins: ["MeleeDefender", "MapMemory", "Sight", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
+  mixins: ["Inventory", "MeleeDefender", "MapMemory", "Sight", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
 });
 
 Game.EntityGenerator.learn({

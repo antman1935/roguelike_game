@@ -3,6 +3,9 @@ Game.SymbolActive = function(template){
   Game.Symbol.call(this, template);
   this.attr._name = template.name || '';
   this.attr._id = template.presetId || Game.util.uniqueId();
+  this.attr._mapId = null;
+  this.attr._x = template.x || 0;
+  this.attr._y = template.y || 0;
 
   this._mixinNames = template.mixins || [];
   this._mixins = [];
@@ -82,4 +85,39 @@ Game.SymbolActive.prototype.fromJSON = function (json) {
 
 Game.SymbolActive.prototype.getId = function(){
   return this.attr._id;
+};
+
+Game.SymbolActive.prototype.getMap = function(){
+  return Game.DATASTORE.MAP[this.attr._mapId];
+};
+Game.SymbolActive.prototype.getMapId = function(){
+  return this.attr._mapId;
+};
+Game.SymbolActive.prototype.setMap = function(map){
+  this.attr._mapId = map.getId();
+};
+
+Game.SymbolActive.prototype.getPos = function(){
+  return {x:this.attr._x, y:this.attr._y};
+};
+Game.SymbolActive.prototype.setPos = function(x_or_xy,y) {
+  if (typeof x_or_xy == 'object') {
+    this.attr._x = x_or_xy.x;
+    this.attr._y = x_or_xy.y;
+  } else {
+    this.attr._x = x_or_xy;
+    this.attr._y = y;
+  }
+};
+Game.SymbolActive.prototype.getX = function() {
+    return this.attr._x;
+};
+Game.SymbolActive.prototype.setX = function(x) {
+    this.attr._x = x;
+};
+Game.SymbolActive.prototype.setY = function(y) {
+    this.attr._y = y;
+};
+Game.SymbolActive.prototype.getY   = function() {
+    return this.attr._y;
 };

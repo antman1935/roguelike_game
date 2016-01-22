@@ -14,13 +14,10 @@ likelihood of survival will be displayed with the notification of [boss name]'s
 arrival.
 
 Things to implement:
-Digging system:
-  The maps generated can force the user into a space where they cannot advance,
-so the ability to dig out the walls of the cave is needed, but it must be
-limited. To do this I want to implement a Digger mixin that gives that ability
-(possibly to enemies as well?). To limit it, a stamina system can be implemented
-This could be done with a mixin similar to HitPoints. The rate at which stamina
-returns could be based on some kind of endurance trait of the entity.
+
+Boss Generation:
+This won't be hard to implement, just a random chance of him spawning, but I
+want the notification to be detailed, probably an ASCII drawing
 
 Inventory and enemy drops:
 Both of these things can be handled with a single mixin. When the player walks
@@ -31,24 +28,37 @@ enemy's inventory on the left, where every item will be labeled with sequential
 numbers so that they can be selected to be moved over. Storage of items in the
 mixin will be simply done with
 
+Armor / Weapon / Magic equipping system:
+Another entity mixin that'll just hold the currently equipped items and
+functionality for equipping and unequipping items.
+
+Ranged attacks:
+Could be triggered with shift + numpad keys. Whether or not the enemy dodges
+the attack will be based on the skills of both the player and the enemy (need
+skill system now). The movement of the projectile will be animated by moving the
+projectile in the same direction by one until an enemy or a wall is hit.
+
+Magic attacks:
+
 Action Messages(inspired by Brogue):
 On weapon items, store an action phrase (i.e. "slashed, bashed, axed") so that
 when the user attacks and is attacked, the message displays something like:
   player_name slashed moss, -3hp
   moss attacked you, -1hp
 
-Skill system:
-
-
-Ranged attacks:
-  Could be triggered with shift + numpad keys. Whether or not the enemy dodges
-the attack will be based on the skills of both the player and the enemy (need
-skill system now). The movement of the projectile will be animated by moving the
-projectile in the same direction by one until an enemy or a wall is hit.
-
-Item generator:
-  Basically a copy of the entity generator.
-
+Buff System:
+Two types of buffs:
+  Permanent Buffs (permaBuffs): can be purchased and upgraded with skill points
+  (possibly in a UIMode separate from the skill menu)
+  _____________________________________________________________________________
+  Buff: effects gotten from eating food, drinking potions, being hit with a
+  spell, or a sharp weapon that causes a bleeding effect.
+  (possibly create another UIMode or layer to show active effects.)
+  Basic idea: The player has a hash map of regular buffs where the key is the
+  Buff and the value is the number of turns that the buff is still active
+  every turn the player takes, the buffs are iterated through. They should have
+  a method name 'affect' that will add whatever effects they have to the entity
+  then their counter will be decreased.
 
 Features wanted:
 Either a menu to trade or a town that is visitable between levels.
@@ -60,4 +70,3 @@ New enemies:
   Slugs (acid damage, lasts for a few turns)
   Jackals
   Synths (ranged attakers)
-Armor system

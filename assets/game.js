@@ -121,7 +121,7 @@ var Game = {
     this.DISPLAYS.message.o.clear();
     this.DISPLAYS.message.o.drawText(1,1,'%c{#fff}%b{#000}'+msg, 79);
   },
-  switchUIMode: function(newUIModeName){
+  switchUIMode: function(newUIModeName, opt){
     if (newUIModeName.startsWith('LAYER_')){
       console.log('cannot switchUIMode to layer ' +newUIModeName);
       return;
@@ -133,7 +133,11 @@ var Game = {
     this._uiModeNameStack[0] = newUIModeName;
     var newMode = Game.UIMode[newUIModeName];
     if (newMode){
-      newMode.enter();
+      if (opt !== undefined && opt.enterData !== undefined){
+        newMode.enter(opt.enterData);
+      }else{
+        newMode.enter();
+      }
     }
   },
   addUIMode: function(newUIModeLayerName){

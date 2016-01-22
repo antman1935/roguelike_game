@@ -163,8 +163,6 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
 };
 
 Game.Map.prototype.renderFovOn = function (display,camX,camY,radius) {
-  // console.log("display is ");
-  // console.dir(display);
   var dims = Game.util.getDisplayDim(display);
   var xStart = camX-Math.round(dims.w/2);
   var yStart = camY-Math.round(dims.h/2);
@@ -272,6 +270,8 @@ Game.Map.prototype.addItem = function (itm,pos) {
       this.attr._itemsByLocation[loc] = [];
     }
     this.attr._itemsByLocation[loc].push(itm.getId());
+    itm.setMap(this);
+    itm.setPos(pos);
 };
 
 Game.Map.prototype.getItems = function (x_or_pos,y) {

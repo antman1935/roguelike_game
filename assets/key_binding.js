@@ -195,6 +195,9 @@ Game.KeyBinding = {
       numpad: {label:'3' ,inputMatch:ROT.VK_NUMPAD3 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false} ,
       waxd  : {label:'c' ,inputMatch:ROT.VK_C       ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
     },
+    PICK_UP   : {action_group:'inventory_actions' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'pickup' ,long :'enter a menu to pick up items on the tile you are currently on',
+      all  : {label:'p' ,inputMatch:ROT.VK_P       ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
 
     SKILLMENU : {action_group:'meta', guid:Game.util.uniqueId(), ordering:4, short:"skill menu", long:'Load the skill menu to purchase upgrades.',
       all: {label:'l', inputMatch:ROT.VK_L, inputType:'keydown', inputMetaShift:false, inputMetaCtrl: false}
@@ -226,6 +229,55 @@ Game.KeyBinding = {
 
     CANCEL          : {action_group:'meta' ,guid :Game.util.uniqueId() ,ordering:1 ,short:'cancel'   ,long:'cancel/close the current action/screen',
       all: {label:'Esc' ,inputMatch:ROT.VK_ESCAPE     ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+
+    INVENTORY : {action_group:'meta', guid:Game.util.uniqueId(), ordering:4, short:"inventory menu", long:'Look at all your booty from devil hunting',
+      all: {label:'i', inputMatch:ROT.VK_I, inputType:'keydown', inputMetaShift:false, inputMetaCtrl: false}
+    },
+    ITEM_7   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'7' ,inputMatch:ROT.VK_NUMPAD7 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_8    : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'8' ,inputMatch:ROT.VK_NUMPAD8 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_9  : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'9' ,inputMatch:ROT.VK_NUMPAD9 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_4    : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'4' ,inputMatch:ROT.VK_NUMPAD4 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_5 : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'5' ,inputMatch:ROT.VK_NUMPAD5 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_6    : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'6' ,inputMatch:ROT.VK_NUMPAD6 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_1   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'1' ,inputMatch:ROT.VK_NUMPAD1 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_2   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'2' ,inputMatch:ROT.VK_NUMPAD2 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_3   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'3' ,inputMatch:ROT.VK_NUMPAD3 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    ITEM_0   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'item select' ,long :'item select',
+      inventory: {label:'0' ,inputMatch:ROT.VK_NUMPAD0 ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    DATA_NAV_UP : {action_group:'data_nav' ,guid:Game.util.uniqueId() ,ordering:5.1 ,short:'up' ,long :'scroll content up',
+      inventory: {label:'['     ,inputMatch:'['      ,inputType:'keypress' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    DATA_NAV_DOWN : {action_group:'data_nav' ,guid:Game.util.uniqueId() ,ordering:5.2 ,short:'down' ,long :'scroll content down',
+      inventory: {label:']'     ,inputMatch:']'      ,inputType:'keypress' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    EQUIP   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'equip' ,long :'equip the currently selected item',
+      inventory: {label:'e' ,inputMatch:ROT.VK_E ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    USE   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'use' ,long :'use the currently selected item',
+      inventory: {label:'u' ,inputMatch:ROT.VK_U ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
+    },
+    DISCARD   : {action_group:'inventory' ,guid:Game.util.uniqueId() ,ordering:3 ,short:'discard' ,long :'discard the currently selected item',
+      inventory: {label:'d' ,inputMatch:ROT.VK_D ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
     }
   }
 };

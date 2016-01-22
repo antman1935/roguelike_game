@@ -663,3 +663,61 @@ Game.EntityMixin.MeleeDefender = {
     return this.attr._MeleeDefenderr_attr.damageMitigation;
   }
 };
+
+Game.EntityMixin.Inventory = {
+  META: {
+    mixinName: 'Inventory',
+    mixinGroup: 'Inventory',
+    stateNamespace: '_Inventory_attr',
+    stateModel: {
+      _inventory: {} // {itemName: [ids]}
+    },
+    init: function(template){
+      this.attr._Inventory_attr._inventory = template.inventory || {};
+    }
+  },
+  getInventory: function(){
+    return this.attr._Inventory_attr._inventory;
+  },
+  addItemToInventory: function(item){
+    if (this.attr._Inventory_attr._inventory[item.getName()] === undefined){
+      this.attr._Inventory_attr._inventory[item.getName()] = [];
+    }
+    console.dir(this.attr._Inventory_attr._inventory);
+    this.attr._Inventory_attr._inventory[item.getName()].push(item.getId());
+  },
+  removeItem: function(itemName){
+    if (this.attr._Inventory_attr._inventory[itemName] !== undefined){
+      if (this.attr._Inventory_attr._inventory[itemName].length > 0){
+        var itemId = this.attr._Inventory_attr._inventory[itemName].pop();
+        return Game.DATASTORE.ITEM[itemId];
+      }
+    }
+    return null;
+  },
+  useItem: function(itemName){
+    var item = this.removeItem(itemName);
+    if (item !== null){
+      if (item.hasMixin('Usable')){
+        item.use();
+        return true;
+      }else{
+        this.addItem(item);
+        Game.Message.sendMessage("You can't use that item.");
+        return false;
+      }
+    }
+  },
+  discardItem: function(itemName){
+    var item = this.removeItem(itemName);
+    if (item !== null){
+      console.dir(item);
+      this.getMap().addItem(item, this.getPos());
+      return true;
+    }else{
+      this.addItem(item);
+      Game.Message.sendMessage("You can't do that here.");
+      return false;
+    }
+  }
+}
