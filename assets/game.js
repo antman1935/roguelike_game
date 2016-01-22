@@ -8,9 +8,7 @@ window.onload = function() {
 
         // Add the containers to our HTML page
         document.getElementById('wsrl-main-display').appendChild(   Game.getDisplay('main').getContainer());
-        document.getElementById('wsrl-avatar-display').appendChild(   Game.getDisplay('avatar').getContainer());
-        document.getElementById('wsrl-message-display').appendChild(   Game.getDisplay('message').getContainer());
-
+        
         Game.Message.sendMessage("Reach level 10 to win.")
     }
 };

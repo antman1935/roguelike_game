@@ -169,9 +169,25 @@ Game.UIMode.gameStart = {
       Game.renderAll();
     },
     handleInput: function(eventType, evt){
+      // <div id="wsrl-avatar-display" class="wsrl-display"></div>
+      // <div id="wsrl-message-display" class="wsrl-display"></div>
+      var avatard = document.createElement("div"), messaged = document.createElement("div");
+      avatard.id = 'wsrl-avatar-display';
+      messaged.id = 'wsrl-message-display';
+      avatard.className = "wsrl-display";
+      messaged.className = "wsrl-display";
+      this.inserAfter(messaged, document.body.childNodes[0].nextSibling);
+      this.inserAfter(avatard, document.body.childNodes[0].nextSibling);
+      // document.body.insertBefore(avatard, document.body.childNodes[1]);
+      // document.body.insertBefore(messaged, document.body.childNodes[1]);
+      document.getElementById('wsrl-avatar-display').appendChild(   Game.getDisplay('avatar').getContainer());
+      document.getElementById('wsrl-message-display').appendChild(   Game.getDisplay('message').getContainer());
       Game.initializeTimeEngine();
       Game.UIMode.gamePlay.setupNewGame();
       Game.switchUIMode("gamePlay");
+    },
+    inserAfter: function(newNode, referenceNode) { //http://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
+      referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
     },
     renderOnMain: function(display){
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
@@ -187,9 +203,9 @@ Game.UIMode.gameStart = {
                     "   ░       ░  ░     ░   ░      ░  ░    ░  ░  ░   ░              ░             ░  ░   ░"];
       var i = 7;
       while (i < splash.length + 7){
-        var j = 0;
-        while (j < splash[i-7].length){
-          display.drawText(j, i, splash[i-7][j]);
+        var j = -1;
+        while (j < splash[i-7].length - 1){
+          display.drawText(j, i, splash[i-7][j + 1]);
           j++;
         }
         i++;
