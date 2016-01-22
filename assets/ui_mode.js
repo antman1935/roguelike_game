@@ -524,16 +524,15 @@ Game.UIMode.gameSkillMenu = {
 Game.UIMode.lootMenu = {
     _itemStack: [],
     _storedKeyBinding: '',
+    _menuY: 0,
     enter: function(itemStack){
       this._itemStack = itemStack;
-      console.dir(this._itemStack);
       this._storedKeyBinding = Game.KeyBinding.getKeyBinding();
       Game.KeyBinding.setKeyBinding('inventory');
       Game.renderAll();
     },
     exit: function() {
       Game.KeyBinding.setKeyBinding(this._storedKeyBinding);
-      Game.switchUIMode("gamePlay");
       Game.renderAll();
     },
     handleInput: function(eventType, evt){
@@ -564,8 +563,24 @@ Game.UIMode.lootMenu = {
         itemSelected = 8;
       }else if (actionBinding.actionKey == 'ITEM_9'){
         itemSelected = 9;
+      }else if (actionBinding.actionKey == 'DATA_NAV_UP'){
+        if (this._menuY > 0) {
+          this._menuY--;
+          Game.renderAll();
+          return true;
+        }else{
+          return false;
+        }
+      }else if (actionBinding.actionKey == 'DATA_NAV_DOWN') {
+        if (this._menuY < this._itemStack.length - 10) {
+          this._menuY++;
+          Game.renderAll();
+          return true;
+        }else{
+          return false;
+        }
       }
-      if (itemSelected !== null && this._itemStack[itemSelected] !== undefined){
+      if (itemSelected !== null && this._itemStack[itemSelected + this._menuY] !== undefined){
         if (this._itemStack.length > itemSelected){
           Game.UIMode.gamePlay.getAvatar().addItemToInventory(this._itemStack[itemSelected].pickUp())
           this._itemStack.splice(this._itemStack, 1);
@@ -576,8 +591,8 @@ Game.UIMode.lootMenu = {
     },
     renderOnMain: function(display){
       display.clear();
-      for (var i = 0; i < this._itemStack.length; i++) {
-        display.drawText(0, i, Game.UIMode.DEFAULT_COLOR_STR +i+ " - " + this._itemStack[i].getName());
+      for (var i = 0; i < Math.min(10, this._itemStack.length) && i + this._menuY < this._itemStack.length; i++) {
+        display.drawText(0, i, Game.UIMode.DEFAULT_COLOR_STR +i+ " - " + this._itemStack[i + this._menuY].getName() + " (menu scroll" + this._menuY + ")");
       }
     }
 };
@@ -680,7 +695,7 @@ Game.UIMode.inventoryMenu = {
     },
     renderOnMain: function(display){
       display.clear();
-      for (var i = 0; i < Math.min(10, this.inventoryArray.length); i++) {
+      for (var i = 0; i < Math.min(10, this.inventoryArray.length) && i + this._menuY < this.inventoryArray.length; i++) {
         display.drawText(0, i, Game.UIMode.DEFAULT_COLOR_STR +i+ " - " + this.inventoryArray[i + this._menuY].name + " (" + this.inventoryArray[i + this._menuY].items.length + ")");
       }
     }
