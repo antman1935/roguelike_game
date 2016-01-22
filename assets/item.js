@@ -16,3 +16,10 @@ Game.Item.prototype.pickUp = function(){
   }
   return this;
 };
+
+Game.Item.prototype.use = function(ent){
+  if (this.hasMixin("Usable")){
+    this.attr._Usable_attr.use(ent);
+    Game.DATASTORE.ITEM[this.getId()] = undefined;
+  }
+}

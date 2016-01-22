@@ -25,12 +25,12 @@ var Game = {
       o: null
     },
     main: {
-      w: 80,
+      w: 90,
       h: 24,
       o: null
     },
     message: {
-      w: 100,
+      w: 110,
       h:6,
       o:null
     }

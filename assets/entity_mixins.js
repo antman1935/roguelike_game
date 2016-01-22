@@ -702,7 +702,7 @@ Game.EntityMixin.Inventory = {
     var item = this.removeItem(itemName);
     if (item !== null){
       if (item.hasMixin('Usable')){
-        item.use();
+        item.use(this);
         return true;
       }else{
         this.addItem(item);
@@ -718,7 +718,7 @@ Game.EntityMixin.Inventory = {
       this.getMap().addItem(item, this.getPos());
       return true;
     }else{
-      this.addItem(item);
+      this.addItemToInventory(item);
       Game.Message.sendMessage("You can't do that here.");
       return false;
     }

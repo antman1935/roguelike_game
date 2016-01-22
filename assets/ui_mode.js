@@ -176,7 +176,25 @@ Game.UIMode.gameStart = {
     renderOnMain: function(display){
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR + "Press any key to begin.");
+      var splash = ["▓█████▄ ▓█████ ██▒   █▓ ██▓ ██▓        ██░ ██  █    ██  ███▄    █ ▄▄▄█████▓▓█████  ██▀███",
+                    "▒██▀ ██▌▓█   ▀▓██░   █▒▓██▒▓██▒       ▓██░ ██▒ ██  ▓██▒ ██ ▀█   █ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒",
+                    "░██   █▌▒███   ▓██  █▒░▒██▒▒██░       ▒██▀▀██░▓██  ▒██░▓██  ▀█ ██▒▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒",
+                    "░▓█▄   ▌▒▓█  ▄  ▒██ █░░░██░▒██░       ░▓█ ░██ ▓▓█  ░██░▓██▒  ▐▌██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄ ",
+                    "░▒████▓ ░▒████▒  ▒▀█░  ░██░░██████▒   ░▓█▒░██▓▒▒█████▓ ▒██░   ▓██░  ▒██▒ ░ ░▒████▒░██▓ ▒██▒",
+                    "▒▒▓  ▒ ░░ ▒░ ░  ░ ▐░  ░▓  ░ ▒░▓  ░    ▒ ░░▒░▒░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒   ▒ ░░   ░░ ▒░ ░░ ▒▓ ░▒▓░",
+                    " ░ ▒  ▒  ░ ░  ░  ░ ░░   ▒ ░░ ░ ▒  ░    ▒ ░▒░ ░░░▒░ ░ ░ ░ ░░   ░ ▒░    ░     ░ ░  ░  ░▒ ░ ▒░",
+                    " ░ ░  ░    ░       ░░   ▒ ░  ░ ░       ░  ░░ ░ ░░░ ░ ░    ░   ░ ░   ░         ░     ░░   ░",
+                    "   ░       ░  ░     ░   ░      ░  ░    ░  ░  ░   ░              ░             ░  ░   ░"];
+      var i = 7;
+      while (i < splash.length + 7){
+        var j = 0;
+        while (j < splash[i-7].length){
+          display.drawText(j, i, splash[i-7][j]);
+          j++;
+        }
+        i++;
+      }
+      display.drawText(33, i + 1, Game.UIMode.DEFAULT_COLOR_STR + "Press any key to begin.");
     }
 };
 Game.UIMode.gamePlay = {
@@ -358,6 +376,7 @@ Game.UIMode.gamePlay = {
 
         itemPos = this.getMap().getRandomWalkableLocation();
         this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
+        this.getMap().addItem(Game.ItemGenerator.create('small health potion'),itemPos)
         this.getAvatar().addItemToInventory(Game.ItemGenerator.create('rock').pickUp());
       }
       console.dir(itemPos);
@@ -583,7 +602,7 @@ Game.UIMode.lootMenu = {
       if (itemSelected !== null && this._itemStack[itemSelected + this._menuY] !== undefined){
         if (this._itemStack.length > itemSelected){
           Game.UIMode.gamePlay.getAvatar().addItemToInventory(this._itemStack[itemSelected].pickUp())
-          this._itemStack.splice(this._itemStack, 1);
+          this._itemStack.splice(itemSelected + this._menuY, 1);
           Game.renderAll();
         }
       }
