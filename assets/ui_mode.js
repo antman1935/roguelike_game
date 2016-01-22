@@ -374,10 +374,8 @@ Game.UIMode.gamePlay = {
         this.getMap().addEntity(Game.EntityGenerator.create('attack slug'), this.getMap().getRandomWalkableLocation());
         this.getMap().addEntity(Game.EntityGenerator.create('goblin'), this.getMap().getRandomWalkableLocation());
 
-        itemPos = this.getMap().getRandomWalkableLocation();
-        this.getMap().addItem(Game.ItemGenerator.create('rock'),itemPos);
-        this.getMap().addItem(Game.ItemGenerator.create('small health potion'),itemPos)
-        this.getAvatar().addItemToInventory(Game.ItemGenerator.create('rock').pickUp());
+        this.getMap().addItem(Game.ItemGenerator.create('rock'), this.getMap().getRandomWalkableLocation());
+        this.getMap().addItem(Game.ItemGenerator.create('small health potion'), this.getMap().getRandomWalkableLocation());
       }
     },
     toJSON: function() {
