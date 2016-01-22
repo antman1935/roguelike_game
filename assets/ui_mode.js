@@ -379,7 +379,6 @@ Game.UIMode.gamePlay = {
         this.getMap().addItem(Game.ItemGenerator.create('small health potion'),itemPos)
         this.getAvatar().addItemToInventory(Game.ItemGenerator.create('rock').pickUp());
       }
-      console.dir(itemPos);
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);

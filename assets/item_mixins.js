@@ -5,14 +5,7 @@ Game.ItemMixin.Usable = {
     mixinName: "Usable",
     mixinGroup: "Usage",
     stateNamespace: "_Usable_attr",
-    stateModel: {
-      use: function(ent){
-        return;
-      }
-    },
-    init: function(template){
-      this.attr._Usable_attr.use = template.use || this.attr._Usable_attr.use;
-    }
+    stateModel: {}
   }
 };
 

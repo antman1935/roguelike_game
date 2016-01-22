@@ -7,8 +7,6 @@ Game.EntityMixin.WalkerCorporeal = {
     mixinGroup: 'Walker',
     listeners: {
       'adjacentMove': function(evtData) {
-          // console.log('listener adjacentMove');
-          // console.dir(JSON.parse(JSON.stringify(evtData)));
           var map = this.getMap();
           var dx=evtData.dx,dy=evtData.dy;
           var targetX = this.getX() + dx;
@@ -168,11 +166,9 @@ Game.EntityMixin.MeleeAttacker = {
         this.setCurrentActionDuration(this.attr._MeleeAttacker_attr.attackActionDuration);
       },
       'calcAttackHit': function(evtData) {
-        // console.log('MeleeAttacker bumpEntity');
         return {attackHit:this.getAttackHit()};
       },
       'calcAttackDamage': function(evtData) {
-        // console.log('MeleeAttacker bumpEntity');
         return {attackDamage:this.getAttackDamage()};
       }
     }
@@ -650,11 +646,9 @@ Game.EntityMixin.MeleeDefender = {
     },
     listeners: {
       'calcAttackAvoid': function(evtData) {
-        // console.log('MeleeDefender calcAttackAvoid');
         return {attackAvoid:this.getAttackAvoid()};
       },
       'calcDamageMitigation': function(evtData) {
-        // console.log('MeleeAttacker bumpEntity');
         return {damageMitigation:this.getDamageMitigation()};
       }
     }
@@ -686,7 +680,6 @@ Game.EntityMixin.Inventory = {
     if (this.attr._Inventory_attr._inventory[item.getName()] === undefined){
       this.attr._Inventory_attr._inventory[item.getName()] = [];
     }
-    console.dir(this.attr._Inventory_attr._inventory);
     this.attr._Inventory_attr._inventory[item.getName()].push(item.getId());
   },
   removeItem: function(itemName){
@@ -714,7 +707,6 @@ Game.EntityMixin.Inventory = {
   discardItem: function(itemName){
     var item = this.removeItem(itemName);
     if (item !== null){
-      console.dir(item);
       this.getMap().addItem(item, this.getPos());
       return true;
     }else{

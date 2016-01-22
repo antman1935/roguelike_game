@@ -19,7 +19,7 @@ Game.Item.prototype.pickUp = function(){
 
 Game.Item.prototype.use = function(ent){
   if (this.hasMixin("Usable")){
-    this.attr._Usable_attr.use(ent);
+    Game.ItemUseMethods[this.getName()](ent);
     Game.DATASTORE.ITEM[this.getId()] = undefined;
   }
 }
