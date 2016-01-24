@@ -12,7 +12,7 @@ Game.EntityGenerator.learn({
   sightRadius: 5,
   maxHp: Game.BASE_PLAYER_ATTRIBUTES.maxHp,
   maxSp: Game.BASE_PLAYER_ATTRIBUTES.maxSp,
-  mixins: ["Inventory", "MeleeDefender", "MapMemory", "Sight", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
+  mixins: ["Equipped", "Inventory", "MeleeDefender", "MapMemory", "Sight", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker", "StaminaPoints", "PlayerMessager", "PlayerExperience", "PlayerSkills", "PlayerActor"]
 });
 
 Game.EntityGenerator.learn({
@@ -21,7 +21,7 @@ Game.EntityGenerator.learn({
   fg: '#6b6',
   exp: 1,
   maxHp: 1,
-  mixins: ["HitPoints"]
+  mixins: ["Equipped", "EnemySkills", "HitPoints"]
 });
 
 Game.EntityGenerator.learn({
@@ -30,7 +30,8 @@ Game.EntityGenerator.learn({
   fg: '#f98',
   exp: 2,
   maxHp: 2,
-  mixins: ["HitPoints", "WanderActor", "WalkerCorporeal"]
+  strength: 1,
+  mixins: ["Equipped", "EnemySkills", "HitPoints", "WanderActor", "WalkerCorporeal"]
 });
 
 Game.EntityGenerator.learn({
@@ -40,7 +41,8 @@ Game.EntityGenerator.learn({
   exp: 3,
   maxHp: 3,
   attackPower: 2,
-  mixins: ["HitPoints", "WanderActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
+  strength: 2,
+  mixins: ["Equipped", "EnemySkills", "HitPoints", "WanderActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
 });
 
 
@@ -50,7 +52,7 @@ Game.EntityGenerator.learn({
   fg: '#f22',
   exp: 3,
   maxHp: 4,
-  mixins: ["HitPoints"]
+  mixins: ["Equipped", "EnemySkills", "HitPoints"]
 });
 
 Game.EntityGenerator.learn({
@@ -61,7 +63,8 @@ Game.EntityGenerator.learn({
   maxHp: 4,
   sightRadius: 4,
   attackPower: 1,
+  strength: 1,
   wanderChaserActionDuration: 1200,
   attackActionDuration: 3000,
-  mixins: ["HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker"]
+  mixins: ["Equipped", "EnemySkills", "HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker"]
 });

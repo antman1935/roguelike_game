@@ -154,7 +154,7 @@ Game.EntityMixin.MeleeAttacker = {
         var avoidValResp = evtData.recipient.raiseSymbolActiveEvent('calcAttackAvoid');
         var hitVal = Game.util.compactNumberArray_add(hitValResp.attackHit);
         var avoidVal = Game.util.compactNumberArray_add(avoidValResp.attackAvoid);
-        if (ROT.RNG.getUniform()*(hitVal+avoidVal) > avoidVal) {
+        if (ROT.RNG.getUniform()*(hitVal+avoidVal) > avoidVal || (hitVal == 0 && avoidVal == 0)) {
           var hitDamageResp = this.raiseSymbolActiveEvent('calcAttackDamage');
           var damageMitigateResp = evtData.recipient.raiseSymbolActiveEvent('calcDamageMitigation');
 
@@ -174,10 +174,16 @@ Game.EntityMixin.MeleeAttacker = {
     }
   },
   getAttackHit: function () {
-    return this.attr._MeleeAttacker_attr.attackHit;
+    return this.getSkillLevel("agility");
   },
   getAttackDamage: function () {
-    return this.attr._MeleeAttacker_attr.attackDamage;
+    if (this.hasEquipmentType('weapon')){
+      console.log("weapon damage: "+this.getEquipment('weapon').getAttackDamage(this));
+      console.log("base strength: "+this.getSkillLevel('strength'));
+      return Math.max(this.getEquipment('weapon').getAttackDamage(this), this.getSkillLevel('strength'));
+    }else{
+      return this.getSkillLevel('strength');
+    }
   }
 };
 
@@ -267,13 +273,13 @@ Game.EntityMixin.PlayerMessager = {
         Game.Message.ageMessages();
       },
       'attackAvoided': function(evtData) {
-        Game.Message.send('you avoided the '+evtData.attacker.getName());
-        Game.renderDisplayMessage();
+        Game.Message.sendMessage('you avoided the '+evtData.attacker.getName());
+        Game.renderMessage();
         Game.Message.ageMessages(); // NOTE: maybe not do this? If surrounded by multiple attackers messages could be aged out before being seen...
       },
       'attackMissed': function(evtData) {
-        Game.Message.send('you missed the '+evtData.recipient.getName());
-        Game.renderDisplayMessage();
+        Game.Message.sendMessage('you missed the '+evtData.recipient.getName());
+        Game.renderMessage();
       },
     }
   }
@@ -422,14 +428,14 @@ Game.EntityMixin.PlayerSkills = {
     mixinGroup: "Skills",
     stateNamespace: "_PlayerSkills_attr",
     stateModel: {
-      "vitality": 0, //health
-      "endurance": 0, //stamina
-      "strength": 0, //will determine melee damage and carry weight
-      "agility": 0, //will determine ability to dodge and successfully hit
-      "accuracy": 0, //will determine the effectiveness of all projectiles
-      "magicka": 0, //determine magic reserves
-      "luck": 0, //determines the value of random drops
-      "intelligence": 0, //determines your ability to use certain items
+      "vitality": 1, //health
+      "endurance": 1, //stamina
+      "strength": 1, //will determine melee damage and carry weight
+      "agility": 1, //will determine ability to dodge and successfully hit
+      "accuracy": 1, //will determine the effectiveness of all projectiles
+      "magicka": 1, //determine magic reserves
+      "luck": 1, //determines the value of random drops
+      "intelligence": 1, //determines your ability to use certain items
       "permaBuffs": {} // will hold five buffs that the player chooses. they can all be upgraded
     }
   },
@@ -447,9 +453,9 @@ Game.EntityMixin.PlayerSkills = {
     return false;
   },
   effect: function(){
-    this.setMaxHp(Game.BASE_PLAYER_ATTRIBUTES.maxHp + Game.BASE_PLAYER_ATTRIBUTES.maxHpGrowth * this.attr._PlayerSkills_attr["vitality"]);
+    this.setMaxHp(Game.BASE_PLAYER_ATTRIBUTES.maxHp + (Game.BASE_PLAYER_ATTRIBUTES.maxHpGrowth * (this.attr._PlayerSkills_attr["vitality"] - 1)));
     this.setCurHp(this.getMaxHp());
-    this.setMaxSp(Game.BASE_PLAYER_ATTRIBUTES.maxSp + Game.BASE_PLAYER_ATTRIBUTES.maxSpGrowth * this.attr._PlayerSkills_attr["endurance"]);
+    this.setMaxSp(Game.BASE_PLAYER_ATTRIBUTES.maxSp + (Game.BASE_PLAYER_ATTRIBUTES.maxSpGrowth * (this.attr._PlayerSkills_attr["endurance"] - 1)));
     this.setCurSp(this.getMaxSp());
     for (var buff in this.attr._PlayerSkills_attr["permaBuffs"]) {
       if (this.attr._PlayerSkills_attr["permaBuffs"].hasOwnProperty(buff)) {
@@ -461,6 +467,27 @@ Game.EntityMixin.PlayerSkills = {
     if (this.attr._PlayerSkills_attr["permaBuffs"].length < Math.min(Math.floor(this.attr._PlayerExperience_attr.getCurLevel() / 5), 5)){
 
     }
+  }
+};
+``
+Game.EntityMixin.EnemySkills = {
+  META: {
+    mixinName: "EnemySkills",
+    mixinGroup: "Skills",
+    stateNamespace: "_EnemySkills_attr",
+    stateModel: {
+      "strength": 0, //will determine melee damage and carry weight
+      "agility": 0, //will determine ability to dodge and successfully hit
+      "intelligence": 0, //determines your ability to use certain items
+    },
+    init: function(template){
+      this.attr._EnemySkills_attr["strength"] = template.strength || 1;
+      this.attr._EnemySkills_attr["agility"] = template.agility || 1;
+      this.attr._EnemySkills_attr["intelligence"] = template.intelligence || 1;
+    }
+  },
+  getSkillLevel: function(skillname){
+    return this.attr._EnemySkills_attr[skillname];
   }
 };
 
@@ -654,7 +681,7 @@ Game.EntityMixin.MeleeDefender = {
     }
   },
   getAttackAvoid: function () {
-    return this.attr._MeleeDefenderr_attr.attackAvoid;
+    return this.getSkillLevel["agility"] || 0;
   },
   getDamageMitigation: function () {
     return this.attr._MeleeDefenderr_attr.damageMitigation;
@@ -715,4 +742,44 @@ Game.EntityMixin.Inventory = {
       return false;
     }
   }
-}
+};
+
+Game.EntityMixin.Equipped = {
+  META: {
+    mixinName: 'Equipped',
+    mixinGroup: 'Inventory',
+    stateNamespace: "_Equipped_attr",
+    stateModel: {
+      'helmet': null,
+      'chest plate': null,
+      'gauntlets': null,
+      'grieves': null,
+      'cape': null,
+      'weapon': null,
+      'ammo': null
+    }
+  },
+  hasEquipmentType: function(name){
+    return this.attr._Equipped_attr[name] !== null;
+  },
+  equip: function(itemName){
+    var item = this.removeItem(itemName);
+    if (! item.hasMixin("Equippable")){
+      Game.Message.sendMessage("You can't equip that.");
+      Game.renderMessage();
+      return false;
+    }
+    if (this.hasEquipmentType(item.getSlot())){
+      this.addItemToInventory(this.getEquipment(item.getSlot()));
+    }
+    this.setEquipment(item.getSlot(), item);
+    Game.Message.sendMessage(item.getName() + " equipped.");
+    return true;
+  },
+  getEquipment: function(slot){
+    return this.attr._Equipped_attr[slot];
+  },
+  setEquipment: function(slot, item){
+    this.attr._Equipped_attr[slot] = item;
+  }
+};
