@@ -88,5 +88,9 @@ Game.util = {
       ret *= ar[i];
     }
     return ret;
+  },
+  getRandomLevel: function(){
+    var curLevel = Game.getAvatar().getCurLevel();
+    return Math.max(curLevel, ROT.RNG.getPercentage() % (curLevel + 3));
   }
 };
