@@ -49,10 +49,13 @@ Game.ItemMixin.MeleeWeapon = {
       if (attacker.getSkillLevel("strength") >= this.attr._MeleeWeapon_attr._strengthReq){
         return Math.round(ROT.RNG.getUniform() * this.attr._MeleeWeapon_attr._damage);
       }else{
-        return Math.round((ROT.RNG.getUniform() * this.attr._MeleeWeapon_attr._damage) * (attacker.getSkillLevel["strength"] / this.attr._MeleeWeapon_attr._strengthReq));
+        return Math.round((ROT.RNG.getUniform() * this.attr._MeleeWeapon_attr._damage) * (attacker.getSkillLevel("strength") / this.attr._MeleeWeapon_attr._strengthReq));
       }
     }else{
       return 1;
     }
+  },
+  getActionPhrase: function(){
+    return this.attr._MeleeWeapon_attr._actionPhrase;
   }
 }

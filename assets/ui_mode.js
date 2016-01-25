@@ -643,6 +643,7 @@ Game.UIMode.inventoryMenu = {
       this.inventoryArray = [];
       for (var key in Game.UIMode.gamePlay.getAvatar().getInventory()) {
         if (Game.UIMode.gamePlay.getAvatar().getInventory().hasOwnProperty(key)) {
+          console.log("key: " +key);
           this.inventoryArray.push({name: key, items: Game.UIMode.gamePlay.getAvatar().getInventory()[key]});
         }
       }
@@ -702,12 +703,11 @@ Game.UIMode.inventoryMenu = {
         if (this.itemSelected >= 0 && this.itemSelected + this._menuY < this.inventoryArray.length){
           this.actionBranch(actionBinding.actionKey);
         }
-        return;
       }
       if (this.itemSelected >= 0 && this.itemSelected + this._menuY < this.inventoryArray.length){
         Game.Message.sendMessage("You've selected " +this.inventoryArray[this.itemSelected + this._menuY].name)
-        Game.renderAll();
       }
+      Game.renderAll();
       return false;
     },
     actionBranch: function(actionKey){
@@ -724,7 +724,6 @@ Game.UIMode.inventoryMenu = {
           this.inventoryArray.splice(this.itemSelected + this._menuY, 1);
           this.itemSelected = -1;
         }
-        Game.renderAll();
       }
     },
     renderOnMain: function(display){

@@ -255,7 +255,7 @@ Game.EntityMixin.PlayerMessager = {
         Game.renderMessage();
       },
       'dealtDamage': function(evtData){
-        Game.Message.sendMessage("You hit the " +evtData.damagee.getName()+ " for " +evtData.damageAmount);
+        Game.Message.sendMessage("You " +(this.hasEquipmentType('weapon')?this.getEquipment('weapon').getActionPhrase(): "hit")+ " the " +evtData.damagee.getName()+ " for " +evtData.damageAmount);
         Game.renderMessage();
       },
       'madeKill': function(evtData){
@@ -263,7 +263,7 @@ Game.EntityMixin.PlayerMessager = {
         Game.renderMessage();
       },
       'damagedBy': function(evtData){
-        Game.Message.sendMessage("The " +evtData.damager.getName()+ " hit you for " + evtData.damageAmount);
+        Game.Message.sendMessage("The " +evtData.damager.getName()+ " " +(evtData.damager.hasEquipmentType('weapon')?evtData.damager.getEquipment('weapon').getActionPhrase(): "hit")+ " you for " + evtData.damageAmount);
         Game.renderMessage();
         Game.Message.ageMessages();
       },
@@ -713,6 +713,9 @@ Game.EntityMixin.Inventory = {
     if (this.attr._Inventory_attr._inventory[itemName] !== undefined){
       if (this.attr._Inventory_attr._inventory[itemName].length > 0){
         var itemId = this.attr._Inventory_attr._inventory[itemName].pop();
+        if (this.attr._Inventory_attr._inventory[itemName].length == 0){
+          delete this.attr._Inventory_attr._inventory[itemName];
+        }
         return Game.DATASTORE.ITEM[itemId];
       }
     }
@@ -759,14 +762,16 @@ Game.EntityMixin.Equipped = {
       'ammo': null
     }
   },
-  hasEquipmentType: function(name){
-    return this.attr._Equipped_attr[name] !== null;
+  hasEquipmentType: function(slot){
+    console.log(this.attr._Equipped_attr[slot]);
+    return this.attr._Equipped_attr[slot] !== null;
   },
   equip: function(itemName){
     var item = this.removeItem(itemName);
     if (! item.hasMixin("Equippable")){
       Game.Message.sendMessage("You can't equip that.");
       Game.renderMessage();
+      this.addItemToInventory(item);
       return false;
     }
     if (this.hasEquipmentType(item.getSlot())){
