@@ -178,8 +178,6 @@ Game.EntityMixin.MeleeAttacker = {
   },
   getAttackDamage: function () {
     if (this.hasEquipmentType('weapon')){
-      console.log("weapon damage: "+this.getEquipment('weapon').getAttackDamage(this));
-      console.log("base strength: "+this.getSkillLevel('strength'));
       return Math.max(this.getEquipment('weapon').getAttackDamage(this), this.getSkillLevel('strength'));
     }else{
       return this.getSkillLevel('strength');
@@ -763,7 +761,6 @@ Game.EntityMixin.Equipped = {
     }
   },
   hasEquipmentType: function(slot){
-    console.log(this.attr._Equipped_attr[slot]);
     return this.attr._Equipped_attr[slot] !== null;
   },
   equip: function(itemName){

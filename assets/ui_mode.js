@@ -21,7 +21,6 @@ Game.UIMode.gamePersistence = {
       if (actionBinding.actionKey == 'PERSISTENCE_SAVE'){
         this.saveGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_LOAD'){
-        console.log("trying to load...");
         this.restoreGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_NEW'){
         this.newGame();
@@ -279,15 +278,12 @@ Game.UIMode.gamePlay = {
       }else if (actionBinding.actionKey == "MOVE_WAIT"){
         tookTurn = this.avatarWait();
       }else if (actionBinding.actionKey == "PICK_UP"){
-        console.log("Picking up...");
         var useX = this.getAvatar().getX();
         var useY = this.getAvatar().getY();
         var itemStack = this.getMap().getItems(useX, useY);
-        console.dir(itemStack);
         if (itemStack.length == 1){
           this.getAvatar().addItemToInventory(itemStack[0].pickUp());
         }else if (itemStack.length > 1){
-          console.log('menu');
           Game.switchUIMode("lootMenu", {enterData: itemStack});
         }
       }else if (actionBinding.actionKey == "CHANGE_BINDINGS"){
@@ -457,13 +453,11 @@ Game.UIMode.LAYER_textReading = {
       if (actionBinding.actionKey == 'CANCEL'){
         Game.removeUIMode();
       }else if (actionBinding.actionKey == 'DATA_NAV_UP'){
-        console.log("up");
         this._renderY++;
         if (this._renderY > 0) { this._renderY = 0; }
         Game.renderMain();
        return true;
       }else if (actionBinding.actionKey == 'DATA_NAV_DOWN') {
-        console.log("down");
         this._renderY--;
         if (this._renderY < this._renderScrollLimit) { this._renderY = this._renderScrollLimit; }
         Game.renderMain();
@@ -643,7 +637,6 @@ Game.UIMode.inventoryMenu = {
       this.inventoryArray = [];
       for (var key in Game.UIMode.gamePlay.getAvatar().getInventory()) {
         if (Game.UIMode.gamePlay.getAvatar().getInventory().hasOwnProperty(key)) {
-          console.log("key: " +key);
           this.inventoryArray.push({name: key, items: Game.UIMode.gamePlay.getAvatar().getInventory()[key]});
         }
       }
