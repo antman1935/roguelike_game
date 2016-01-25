@@ -32,17 +32,25 @@ Game.ItemMixin.MeleeWeapon = {
     mixinGroup: "Weapon",
     stateNamespace: "_MeleeWeapon_attr",
     stateModel: {
-      _damage: 1,
+      _level: 1,
       _actionPhrase: '',
-      _intelReq: 0,
-      _strengthReq: 0
+      "damage": 1,
+      "intelligence": 0,
+      "strength": 0
     },
     init: function(template){
-      this.attr._MeleeWeapon_attr._damage = template.meleeDamage || 1;
+      this.attr._MeleeWeapon_attr._level = Game.util.getRandomLevel();
+      this._determineSkill("damage", template.meleeDamage);
+      this._determineSkill("intelligence", template.intelligence);
+      this._determineSkill("strength", template.strength);
       this.attr._MeleeWeapon_attr._actionPhrase = template.meleePhrase || 'hit';
-      this.attr._MeleeWeapon_attr._intelReq = template.intelligenceReq || 0;
-      this.attr._MeleeWeapon_attr._strengthReq = template.strengthReq || 0;
     }
+  },
+  _determineSkill: function(reqname, reqLevel){
+    this.attr._MeleeWeapon_attr[reqname] = (reqLevel !== undefined)?reqLevel + reqLevel * Math.floor(this.getLevel() / 5): 1 + Math.round(this.getLevel() / 10);
+  },
+  getLevel: function(){
+    return this.attr._MeleeWeapon_attr._level;
   },
   getAttackDamage: function(attacker){
     if (attacker.getSkillLevel("intelligence") >= this.attr._MeleeWeapon_attr._intelReq){

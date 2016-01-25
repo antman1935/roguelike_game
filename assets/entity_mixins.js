@@ -382,8 +382,8 @@ Game.EntityMixin.PlayerExperience = {
     stateModel: {
       skillpoints: 0,
       curExp: 0,
-      curLevel: 0,
-      nextLevel: 1
+      curLevel: 1,
+      nextLevel: 2
     },
     listeners: {
       'madeKill': function(evtData){
@@ -474,18 +474,26 @@ Game.EntityMixin.EnemySkills = {
     mixinGroup: "Skills",
     stateNamespace: "_EnemySkills_attr",
     stateModel: {
+      _level: 0,
       "strength": 0, //will determine melee damage and carry weight
       "agility": 0, //will determine ability to dodge and successfully hit
       "intelligence": 0, //determines your ability to use certain items
     },
     init: function(template){
-      this.attr._EnemySkills_attr["strength"] = template.strength || 1;
-      this.attr._EnemySkills_attr["agility"] = template.agility || 1;
-      this.attr._EnemySkills_attr["intelligence"] = template.intelligence || 1;
+      this.attr._EnemySkills_attr._level = Game.util.getRandomLevel();
+      this._determineSkill("strength", template.strength);
+      this._determineSkill("agility", template.agility);
+      this._determineSkill("intelligence", template.intelligence);
+      this._determineSkill("exp", template.exp);
     }
   },
+  _determineSkill: function(skillname, templatelevel){
+    this.attr._EnemySkills_attr[skillname] = (templatelevel !== undefined)?templatelevel + templatelevel * Math.floor(this.getLevel() / 5): 1 + Math.round(this.getLevel() / 10);  },
   getSkillLevel: function(skillname){
     return this.attr._EnemySkills_attr[skillname];
+  },
+  getLevel: function(){
+    return this.attr._EnemySkills_attr._level;
   }
 };
 

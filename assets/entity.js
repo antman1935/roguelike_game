@@ -19,5 +19,5 @@ Game.Entity.prototype.destroy = function(){
 };
 
 Game.Entity.prototype.getExp = function(){
-  return this.attr._exp;
+  return this.attr._EnemySkills_attr["exp"];
 };

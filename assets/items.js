@@ -33,8 +33,8 @@ Game.ItemGenerator.learn({
   fg:'#310C0C',
   slot: 'weapon',
   meleeDamage: 2,
-  intelligenceReq: 1,
-  strengthReq: 1,
+  intelligence: 1,
+  strength: 1,
   meleePhrase: 'struck',
   mixins: ["Equippable", "MeleeWeapon"]
 });
@@ -45,8 +45,8 @@ Game.ItemGenerator.learn({
   fg:'#bd5326',
   slot: 'weapon',
   meleeDamage: 4,
-  intelligenceReq: 1,
-  strengthReq: 2,
+  intelligence: 1,
+  strength: 2,
   meleePhrase: 'slashed',
   mixins: ["Equippable", "MeleeWeapon"]
 });
