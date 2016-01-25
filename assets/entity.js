@@ -4,12 +4,9 @@ Game.Entity = function(template){
   template = template || {};
   this._mixinSet = Game.EntityMixin;
   Game.SymbolActive.call(this, template);
-  // if (!('attr' in this)) { this.attr = {}; }
-  // this.attr._name = template.name || '';
   this.attr._exp = template.exp || 0;
   this.attr._generator_template_key = template.generator_template_key || '';
 
-  // this.attr._id = template.presetId || Game.util.uniqueId();
   Game.DATASTORE.ENTITY[this.attr._id] = this;
 };
 Game.Entity.extend(Game.SymbolActive);

@@ -21,7 +21,6 @@ Game.UIMode.gamePersistence = {
       if (actionBinding.actionKey == 'PERSISTENCE_SAVE'){
         this.saveGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_LOAD'){
-        console.log("trying to load...");
         this.restoreGame();
       }else if (actionBinding.actionKey == 'PERSISTENCE_NEW'){
         this.newGame();
@@ -205,7 +204,7 @@ Game.UIMode.gameStart = {
       while (i < splash.length + 7){
         var j = -1;
         while (j < splash[i-7].length - 1){
-          display.drawText(j, i, splash[i-7][j + 1]);
+          display.drawText(j, i, '%c{#f11}%b{#000}'+splash[i-7][j + 1]);
           j++;
         }
         i++;
@@ -279,15 +278,12 @@ Game.UIMode.gamePlay = {
       }else if (actionBinding.actionKey == "MOVE_WAIT"){
         tookTurn = this.avatarWait();
       }else if (actionBinding.actionKey == "PICK_UP"){
-        console.log("Picking up...");
         var useX = this.getAvatar().getX();
         var useY = this.getAvatar().getY();
         var itemStack = this.getMap().getItems(useX, useY);
-        console.dir(itemStack);
         if (itemStack.length == 1){
           this.getAvatar().addItemToInventory(itemStack[0].pickUp());
         }else if (itemStack.length > 1){
-          console.log('menu');
           Game.switchUIMode("lootMenu", {enterData: itemStack});
         }
       }else if (actionBinding.actionKey == "CHANGE_BINDINGS"){
@@ -393,6 +389,8 @@ Game.UIMode.gamePlay = {
         this.getMap().addItem(Game.ItemGenerator.create('rock'), this.getMap().getRandomWalkableLocation());
         this.getMap().addItem(Game.ItemGenerator.create('small health potion'), this.getMap().getRandomWalkableLocation());
       }
+      this.getMap().addItem(Game.ItemGenerator.create('stick'), Game.getAvatar().getPos());
+      this.getMap().addItem(Game.ItemGenerator.create('bronze sword'), Game.getAvatar().getPos());
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
@@ -455,13 +453,11 @@ Game.UIMode.LAYER_textReading = {
       if (actionBinding.actionKey == 'CANCEL'){
         Game.removeUIMode();
       }else if (actionBinding.actionKey == 'DATA_NAV_UP'){
-        console.log("up");
         this._renderY++;
         if (this._renderY > 0) { this._renderY = 0; }
         Game.renderMain();
        return true;
       }else if (actionBinding.actionKey == 'DATA_NAV_DOWN') {
-        console.log("down");
         this._renderY--;
         if (this._renderY < this._renderScrollLimit) { this._renderY = this._renderScrollLimit; }
         Game.renderMain();
@@ -700,12 +696,11 @@ Game.UIMode.inventoryMenu = {
         if (this.itemSelected >= 0 && this.itemSelected + this._menuY < this.inventoryArray.length){
           this.actionBranch(actionBinding.actionKey);
         }
-        return;
       }
       if (this.itemSelected >= 0 && this.itemSelected + this._menuY < this.inventoryArray.length){
         Game.Message.sendMessage("You've selected " +this.inventoryArray[this.itemSelected + this._menuY].name)
-        Game.renderAll();
       }
+      Game.renderAll();
       return false;
     },
     actionBranch: function(actionKey){
@@ -713,7 +708,7 @@ Game.UIMode.inventoryMenu = {
       if (actionKey == 'USE'){
         success = Game.getAvatar().useItem(this.inventoryArray[this.itemSelected + this._menuY].name);
       }else if (actionKey == 'EQUIP'){
-        success = Game.getAvatar().equipItem(this.inventoryArray[this.itemSelected + this._menuY].name);
+        success = Game.getAvatar().equip(this.inventoryArray[this.itemSelected + this._menuY].name);
       }else if (actionKey == 'DISCARD'){
         success = Game.getAvatar().discardItem(this.inventoryArray[this.itemSelected + this._menuY].name);
       }
@@ -722,7 +717,6 @@ Game.UIMode.inventoryMenu = {
           this.inventoryArray.splice(this.itemSelected + this._menuY, 1);
           this.itemSelected = -1;
         }
-        Game.renderAll();
       }
     },
     renderOnMain: function(display){
