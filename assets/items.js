@@ -1,4 +1,5 @@
 Game.ItemGenerator = new Game.Generator('items',Game.Item);
+Game.ITEMS = ["rock", "small health potion", "medium health potion", "large health potion", "stick", "bronze sword"];
 
 Game.ItemGenerator.learn({
   name: 'rock',

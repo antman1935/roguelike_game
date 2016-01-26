@@ -378,7 +378,7 @@ Game.UIMode.gamePlay = {
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
       this.setCameraToAvatar();
       this.getMap().populateEnemies();
-      this.getMap().getBooty();
+      this.getMap().addBooty();
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
