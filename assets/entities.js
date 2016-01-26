@@ -5,7 +5,7 @@ Game.BASE_PLAYER_ATTRIBUTES = {
   maxSpGrowth: 2
 };
 Game.EntityGenerator = new Game.Generator('entities', Game.Entity);
-Game.ENTITIES = ["moss", "newt", "angry squirrel", "fat goblin", "attack slug"]
+Game.ENTITIES = ["moss", "newt", "angry squirrel", "goblin", "attack slug"]
 Game.EntityGenerator.learn({
   name: 'avatar',
   chr: '@',
@@ -22,7 +22,7 @@ Game.EntityGenerator.learn({
   fg: '#6b6',
   exp: 1,
   maxHp: 1,
-  mixins: ["Equipped", "EnemySkills", "HitPoints"]
+  mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints"]
 });
 
 Game.EntityGenerator.learn({
@@ -32,7 +32,7 @@ Game.EntityGenerator.learn({
   exp: 2,
   maxHp: 2,
   strength: 1,
-  mixins: ["Equipped", "EnemySkills", "HitPoints", "WanderActor", "WalkerCorporeal"]
+  mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints", "WanderActor", "WalkerCorporeal"]
 });
 
 Game.EntityGenerator.learn({
@@ -43,17 +43,21 @@ Game.EntityGenerator.learn({
   maxHp: 3,
   attackPower: 2,
   strength: 2,
-  mixins: ["Equipped", "EnemySkills", "HitPoints", "WanderActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
+  mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints", "WanderActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
 });
 
 
 Game.EntityGenerator.learn({
-  name: 'fat goblin',
+  name: 'goblin',
   chr: 'G',
   fg: '#f22',
-  exp: 3,
-  maxHp: 4,
-  mixins: ["Equipped", "EnemySkills", "HitPoints"]
+  exp: 10,
+  maxHp: 5,
+  wanderChaserActionDuration: 1200,
+  attackActionDuration: 3000,
+  strength: 2,
+  sightRadius: 3,
+  mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
 });
 
 Game.EntityGenerator.learn({
@@ -67,5 +71,5 @@ Game.EntityGenerator.learn({
   strength: 1,
   wanderChaserActionDuration: 1200,
   attackActionDuration: 3000,
-  mixins: ["Equipped", "EnemySkills", "HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker"]
+  mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
 });

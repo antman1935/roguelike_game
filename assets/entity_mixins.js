@@ -690,6 +690,17 @@ Game.EntityMixin.MeleeDefender = {
     return this.getSkillLevel["agility"] || 0;
   },
   getDamageMitigation: function () {
+    if (this.hasMixin("Equipped")){
+      var resist = 0;
+      for (var slot in this.attr._Equipped_attr) {
+        if (this.attr._Equipped_attr.hasOwnProperty(slot)) {
+          if (this.attr._Equipped_attr[slot] !== null && this.attr._Equipped_attr[slot].hasMixin("Armor")){
+            resist += this.attr._Equipped_attr[slot].getDamageResist(this);
+          }
+        }
+      }
+      return resist;
+    }
     return this.attr._MeleeDefenderr_attr.damageMitigation;
   }
 };
@@ -766,6 +777,19 @@ Game.EntityMixin.Equipped = {
       'cape': null,
       'weapon': null,
       'ammo': null
+    },
+    init: function(){
+      if (this.getName() != "avatar"){
+        this.generateEquipment();
+      }
+    }
+  },
+  generateEquipment: function(){
+    var weapon = Game.ItemGenerator.create(Game.WEAPONS[((ROT.RNG.getPercentage() % Math.floor(Game.getAvatar().getCurLevel() / 3)) % Game.WEAPONS.length) || 0]);
+    this.setEquipment(weapon.getSlot(), weapon);
+    for (var i = 0; i < Math.round(Game.getAvatar().getCurLevel() / 5) + 2; i++) {
+      var armor = Game.ItemGenerator.create(Game.ARMOR[((ROT.RNG.getPercentage() % Math.floor(Game.getAvatar().getCurLevel() / 3)) % Game.ARMOR.length) || 0]);
+      this.setEquipment(armor.getSlot(), armor);
     }
   },
   hasEquipmentType: function(slot){
