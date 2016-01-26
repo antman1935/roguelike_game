@@ -310,3 +310,24 @@ Game.Map.prototype.extractItemAt = function (itm_or_idx,x_or_pos,y) {
   }
   return item;
 };
+
+Game.Map.prototype.populateEnemies = function(){
+  var count = 0;
+  while (count < 100){
+    var entToGen = Game.ENTITIES[ROT.RNG.getPercentage() % Game.ENTITIES.length];
+    var numToGen = ROT.RNG.getPercentage() % 10;
+    for (var i = 0; i < numToGen; i++) {
+      this.addEntity(Game.EntityGenerator.create(entToGen), this.getRandomWalkableLocation());
+    }
+    count += numToGen;
+  }
+};
+
+Game.Map.prototype.addBooty =function(){
+  var count = 0;
+  while (count < 15){
+    var itemToGen = Game.ITEMS[ROT.RNG.getPercentage() % Game.ITEMS.length];
+    this.addItem(Game.ItemGenerator.create(itemToGen), this.getRandomWalkableLocation());
+    count++;
+  }
+}

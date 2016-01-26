@@ -377,20 +377,8 @@ Game.UIMode.gamePlay = {
       this.setAvatar(Game.EntityGenerator.create('avatar'));
       this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
       this.setCameraToAvatar();
-
-      var itemPos = '';
-      for (var i = 0; i < 40; i++) {
-        this.getMap().addEntity(Game.EntityGenerator.create('moss'), this.getMap().getRandomWalkableLocation());
-        this.getMap().addEntity(Game.EntityGenerator.create('newt'), this.getMap().getRandomWalkableLocation());
-        this.getMap().addEntity(Game.EntityGenerator.create('angry squirrel'), this.getMap().getRandomWalkableLocation());
-        this.getMap().addEntity(Game.EntityGenerator.create('attack slug'), this.getMap().getRandomWalkableLocation());
-        this.getMap().addEntity(Game.EntityGenerator.create('goblin'), this.getMap().getRandomWalkableLocation());
-
-        this.getMap().addItem(Game.ItemGenerator.create('rock'), this.getMap().getRandomWalkableLocation());
-        this.getMap().addItem(Game.ItemGenerator.create('small health potion'), this.getMap().getRandomWalkableLocation());
-      }
-      this.getMap().addItem(Game.ItemGenerator.create('stick'), Game.getAvatar().getPos());
-      this.getMap().addItem(Game.ItemGenerator.create('bronze sword'), Game.getAvatar().getPos());
+      this.getMap().populateEnemies();
+      this.getMap().getBooty();
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);

@@ -5,6 +5,7 @@ Game.BASE_PLAYER_ATTRIBUTES = {
   maxSpGrowth: 2
 };
 Game.EntityGenerator = new Game.Generator('entities', Game.Entity);
+Game.ENTITIES = ["moss", "newt", "angry squirrel", "fat goblin", "attack slug"]
 Game.EntityGenerator.learn({
   name: 'avatar',
   chr: '@',
@@ -47,7 +48,7 @@ Game.EntityGenerator.learn({
 
 
 Game.EntityGenerator.learn({
-  name: 'goblin',
+  name: 'fat goblin',
   chr: 'G',
   fg: '#f22',
   exp: 3,
