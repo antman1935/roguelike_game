@@ -12,7 +12,12 @@ Game.Entity = function(template){
 Game.Entity.extend(Game.SymbolActive);
 
 Game.Entity.prototype.destroy = function(){
-  //remove from map (turn into red X)
+  if (this.hasMixin("Equipped")){
+    this.unequipAll();
+  }
+  if (this.hasMixin("Inventory")){
+    this.dropAllItems();
+  }
   this.getMap().extractEntity(this);
   Game.DATASTORE.ENTITY[this.getId()] = undefined;
   Game.Scheduler.remove(this);

@@ -323,11 +323,23 @@ Game.Map.prototype.populateEnemies = function(){
   }
 };
 
-Game.Map.prototype.addBooty =function(){
+Game.Map.prototype.addMoreEnemies = function(){
+  var count = 0;
+  while (count < 3 * Game.getAvatar().getLevel()){
+    var entToGen = Game.ENTITIES[ROT.RNG.getPercentage() % Game.ENTITIES.length];
+    var numToGen = ROT.RNG.getPercentage() % 10;
+    for (var i = 0; i < numToGen; i++) {
+      this.addEntity(Game.EntityGenerator.create(entToGen), this.getRandomWalkableLocation());
+    }
+    count += numToGen;
+  }
+};
+
+Game.Map.prototype.addBooty = function(){
   var count = 0;
   while (count < 15){
-    var itemToGen = Game.ITEMS[ROT.RNG.getPercentage() % Game.ITEMS.length];
+    var itemToGen = Game.ITEMS[(ROT.RNG.getPercentage() % (Math.floor(Game.getAvatar().getLevel() / 3) || 1)) % Game.ITEMS.length];
     this.addItem(Game.ItemGenerator.create(itemToGen), this.getRandomWalkableLocation());
     count++;
   }
-}
+};

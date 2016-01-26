@@ -90,7 +90,7 @@ Game.util = {
     return ret;
   },
   getRandomLevel: function(){
-    var curLevel = Game.getAvatar().getCurLevel();
+    var curLevel = Game.getAvatar().getLevel();
     return Math.max(curLevel, ROT.RNG.getPercentage() % (curLevel + 3));
   }
 };

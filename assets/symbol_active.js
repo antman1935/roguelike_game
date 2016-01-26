@@ -69,7 +69,12 @@ Game.SymbolActive.prototype.raiseSymbolActiveEvent = function(evtLabel, evtData)
 };
 
 Game.SymbolActive.prototype.getName = function() {
-    return this.attr._name;
+
+    if (this.hasOwnProperty("getLevel")){
+      return "level " + this.getLevel() + " " +this.attr._name;
+    }else{
+      return this.attr._name;
+    }
 };
 Game.SymbolActive.prototype.setName = function(name) {
     this.attr._name = name;

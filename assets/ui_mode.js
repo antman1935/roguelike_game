@@ -348,10 +348,10 @@ Game.UIMode.gamePlay = {
       display.drawText(1,6, Game.UIMode.DEFAULT_COLOR_STR + "Turns taken: " + this.getAvatar().getTurns());
 
       display.drawText(1,9, Game.UIMode.DEFAULT_COLOR_STR + "Exp: " + this.getAvatar().getCurExp() + "/" + this.getAvatar().getNextLevelExp());
-      display.drawText(1,10, Game.UIMode.DEFAULT_COLOR_STR + "Level: " + this.getAvatar().getCurLevel());
+      display.drawText(1,10, Game.UIMode.DEFAULT_COLOR_STR + "Level: " + this.getAvatar().getLevel());
       display.drawText(1,11, Game.UIMode.DEFAULT_COLOR_STR + "You have " +this.getAvatar().getSkillPoints()+ " skill points.")
       if (this.getAvatar().getSkillPoints()){
-        display.drawText(1,12, Game.UIMode.DEFAULT_COLOR_STR + "Press [l] to spend your skill points.")
+        display.drawText(1,13, Game.UIMode.DEFAULT_COLOR_STR + "Press [l] to spend your skill points.")
       }
     },
     moveAvatar: function (pdx,pdy) {

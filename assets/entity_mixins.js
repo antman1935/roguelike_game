@@ -158,7 +158,7 @@ Game.EntityMixin.MeleeAttacker = {
           var hitDamageResp = this.raiseSymbolActiveEvent('calcAttackDamage');
           var damageMitigateResp = evtData.recipient.raiseSymbolActiveEvent('calcDamageMitigation');
 
-          evtData.recipient.raiseSymbolActiveEvent('attacked',{attacker:evtData.actor,attackDamage:Game.util.compactNumberArray_add(hitDamageResp.attackDamage) - Game.util.compactNumberArray_add(damageMitigateResp.damageMitigation)});
+          evtData.recipient.raiseSymbolActiveEvent('attacked',{attacker:evtData.actor,attackDamage:Math.max(Game.util.compactNumberArray_add(hitDamageResp.attackDamage) - Game.util.compactNumberArray_add(damageMitigateResp.damageMitigation), 0)});
         } else {
           evtData.recipient.raiseSymbolActiveEvent('attackAvoided',{attacker:evtData.actor,recipient:evtData.recipient});
           evtData.actor.raiseSymbolActiveEvent('attackMissed',{attacker:evtData.actor,recipient:evtData.recipient});
@@ -402,8 +402,10 @@ Game.EntityMixin.PlayerExperience = {
     }
     this.attr._PlayerExperience_attr.skillpoints += 1 + Math.floor(this.attr._PlayerExperience_attr.curLevel / 5);
     Game.Message.sendMessage("You're now level " +this.attr._PlayerExperience_attr.curLevel);
+    this.getMap().addMoreEnemies();
+    this.getMap().addBooty();
   },
-  getCurLevel: function(){
+  getLevel: function(){
     return this.attr._PlayerExperience_attr.curLevel;
   },
   getCurExp: function(){
@@ -462,7 +464,7 @@ Game.EntityMixin.PlayerSkills = {
     }
   },
   getNewBuff: function(buff){
-    if (this.attr._PlayerSkills_attr["permaBuffs"].length < Math.min(Math.floor(this.attr._PlayerExperience_attr.getCurLevel() / 5), 5)){
+    if (this.attr._PlayerSkills_attr["permaBuffs"].length < Math.min(Math.floor(this.attr._PlayerExperience_attr.getLevel() / 5), 5)){
 
     }
   }
@@ -761,6 +763,23 @@ Game.EntityMixin.Inventory = {
       Game.Message.sendMessage("You can't do that here.");
       return false;
     }
+  },
+  dropAllItems: function(){
+    console.dir(this.attr._Inventory_attr._inventory)
+    for (var item in this.attr._Inventory_attr._inventory) {
+      if (this.attr._Inventory_attr._inventory.hasOwnProperty(item)) {
+        console.dir(this.attr._Inventory_attr._inventory[item]);
+        var len = this.attr._Inventory_attr._inventory[item].length;
+        for (var i = 0; i < len; i++){
+          var chance = ROT.RNG.getPercentage() % Game.getAvatar().getLevel();
+          console.log(item + " - drop: " + chance);
+          if (chance < Game.getAvatar().getSkillLevel("luck")){
+            this.discardItem(item);
+            len--;
+          }
+        }
+      }
+    }
   }
 };
 
@@ -785,10 +804,10 @@ Game.EntityMixin.Equipped = {
     }
   },
   generateEquipment: function(){
-    var weapon = Game.ItemGenerator.create(Game.WEAPONS[((ROT.RNG.getPercentage() % Math.floor(Game.getAvatar().getCurLevel() / 3)) % Game.WEAPONS.length) || 0]);
+    var weapon = Game.ItemGenerator.create(Game.WEAPONS[((ROT.RNG.getPercentage() % Math.floor(Game.getAvatar().getLevel() / 3)) % Game.WEAPONS.length) || 0]);
     this.setEquipment(weapon.getSlot(), weapon);
-    for (var i = 0; i < Math.round(Game.getAvatar().getCurLevel() / 5) + 2; i++) {
-      var armor = Game.ItemGenerator.create(Game.ARMOR[((ROT.RNG.getPercentage() % Math.floor(Game.getAvatar().getCurLevel() / 3)) % Game.ARMOR.length) || 0]);
+    for (var i = 0; i < Math.round(Game.getAvatar().getLevel() / 5) + 2; i++) {
+      var armor = Game.ItemGenerator.create(Game.ARMOR[((ROT.RNG.getPercentage() % Math.floor(Game.getAvatar().getLevel() / 3)) % Game.ARMOR.length) || 0]);
       this.setEquipment(armor.getSlot(), armor);
     }
   },
@@ -815,5 +834,16 @@ Game.EntityMixin.Equipped = {
   },
   setEquipment: function(slot, item){
     this.attr._Equipped_attr[slot] = item;
+  },
+  unequipAll: function(){
+    for (var slot in this.attr._Equipped_attr) {
+      if (this.attr._Equipped_attr.hasOwnProperty(slot)) {
+        if (this.attr._Equipped_attr[slot] !== null){
+          var item = this.getEquipment(slot);
+          this.setEquipment(slot, null);
+          this.addItemToInventory(item);
+        }
+      }
+    }
   }
 };
