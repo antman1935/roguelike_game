@@ -404,6 +404,10 @@ Game.EntityMixin.PlayerExperience = {
     Game.Message.sendMessage("You're now level " +this.attr._PlayerExperience_attr.curLevel);
     this.getMap().addMoreEnemies();
     this.getMap().addBooty();
+    if (!Game.UIMode.gamePlay.attr._exitSpawned && (this.getLevel() / Game.UIMode.gamePlay.attr._level) >= 1){
+      Game.UIMode.gamePlay.attr._exitSpawned = true;
+      Game.UIMode.gamePlay.getMap().spawnExit();
+    }
   },
   getLevel: function(){
     return this.attr._PlayerExperience_attr.curLevel;
@@ -765,14 +769,11 @@ Game.EntityMixin.Inventory = {
     }
   },
   dropAllItems: function(){
-    console.dir(this.attr._Inventory_attr._inventory)
     for (var item in this.attr._Inventory_attr._inventory) {
       if (this.attr._Inventory_attr._inventory.hasOwnProperty(item)) {
-        console.dir(this.attr._Inventory_attr._inventory[item]);
         var len = this.attr._Inventory_attr._inventory[item].length;
         for (var i = 0; i < len; i++){
           var chance = ROT.RNG.getPercentage() % Game.getAvatar().getLevel();
-          console.log(item + " - drop: " + chance);
           if (chance < Game.getAvatar().getSkillLevel("luck")){
             this.discardItem(item);
             len--;

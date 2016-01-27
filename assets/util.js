@@ -90,7 +90,18 @@ Game.util = {
     return ret;
   },
   getRandomLevel: function(){
-    var curLevel = Game.getAvatar().getLevel();
-    return Math.max(curLevel, ROT.RNG.getPercentage() % (curLevel + 3));
+    var curLevel = Game.UIMode.gamePlay.attr._level || 1;
+    return Math.max(ROT.RNG.getPercentage() % (curLevel * 5), curLevel * 5 - 4);
+  },
+  drawASCIIText(display, x, y, text){
+    var i = x;
+    while (i < text.length + x){
+      var j = y;
+      while (j < text[i-x].length + y){
+        display.drawText(j, i, '%c{#f11}%b{#000}'+text[i-x][j - y]);
+        j++;
+      }
+      i++;
+    }
   }
 };

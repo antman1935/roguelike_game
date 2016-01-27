@@ -54,6 +54,10 @@ Game.UIMode.gamePersistence = {
     },
     restoreGame: function() {
       if (this.localStorageAvailable()){
+        Game.Entity.extend(Game.SymbolActive);
+        Game.Item.extend(Game.SymbolActive);
+        Game.SymbolActive.extend(Game.Symbol);
+        Game.Tile.extend(Game.Symbol);
         Game.Scheduler.clear();
 
         var json_state_data = window.localStorage.getItem(Game._PERSISTENCE_NAMESPACE);
@@ -191,25 +195,9 @@ Game.UIMode.gameStart = {
     renderOnMain: function(display){
       var fg = Game.UIMode.DEFAULT_COLOR_FG;
       var bg = Game.UIMode.DEFAULT_COLOR_BG;
-      var splash = ["▓█████▄ ▓█████ ██▒   █▓ ██▓ ██▓        ██░ ██  █    ██  ███▄    █ ▄▄▄█████▓▓█████  ██▀███",
-                    "▒██▀ ██▌▓█   ▀▓██░   █▒▓██▒▓██▒       ▓██░ ██▒ ██  ▓██▒ ██ ▀█   █ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒",
-                    "░██   █▌▒███   ▓██  █▒░▒██▒▒██░       ▒██▀▀██░▓██  ▒██░▓██  ▀█ ██▒▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒",
-                    "░▓█▄   ▌▒▓█  ▄  ▒██ █░░░██░▒██░       ░▓█ ░██ ▓▓█  ░██░▓██▒  ▐▌██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄ ",
-                    "░▒████▓ ░▒████▒  ▒▀█░  ░██░░██████▒   ░▓█▒░██▓▒▒█████▓ ▒██░   ▓██░  ▒██▒ ░ ░▒████▒░██▓ ▒██▒",
-                    "▒▒▓  ▒ ░░ ▒░ ░  ░ ▐░  ░▓  ░ ▒░▓  ░    ▒ ░░▒░▒░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒   ▒ ░░   ░░ ▒░ ░░ ▒▓ ░▒▓░",
-                    " ░ ▒  ▒  ░ ░  ░  ░ ░░   ▒ ░░ ░ ▒  ░    ▒ ░▒░ ░░░▒░ ░ ░ ░ ░░   ░ ▒░    ░     ░ ░  ░  ░▒ ░ ▒░",
-                    " ░ ░  ░    ░       ░░   ▒ ░  ░ ░       ░  ░░ ░ ░░░ ░ ░    ░   ░ ░   ░         ░     ░░   ░",
-                    "   ░       ░  ░     ░   ░      ░  ░    ░  ░  ░   ░              ░             ░  ░   ░"];
-      var i = 7;
-      while (i < splash.length + 7){
-        var j = -1;
-        while (j < splash[i-7].length - 1){
-          display.drawText(j, i, '%c{#f11}%b{#000}'+splash[i-7][j + 1]);
-          j++;
-        }
-        i++;
-      }
-      display.drawText(33, i + 1, Game.UIMode.DEFAULT_COLOR_STR + "Press any key to begin.");
+
+      Game.util.drawASCIIText(display,  Game.ASCII.splash.centerY,  Game.ASCII.splash.centerX, Game.ASCII.splash.text);
+      display.drawText(33, 17, Game.UIMode.DEFAULT_COLOR_STR + "Press any key to begin.");
     }
 };
 Game.UIMode.gamePlay = {
@@ -217,7 +205,9 @@ Game.UIMode.gamePlay = {
       _mapId: '',
       _cameraX: 100,
       _cameraY: 100,
-      _avatarId: ''
+      _avatarId: '',
+      _level: 1,
+      _exitSpawned: false
     },
     JSON_KEY: 'uiMode_gamePlay',
 
@@ -255,6 +245,12 @@ Game.UIMode.gamePlay = {
         Game.switchUIMode("gameSkillMenu");
       }else if (actionBinding.actionKey == "INVENTORY"){
         Game.switchUIMode("inventoryMenu");
+      }else if (actionBinding.actionKey == "EXIT"){
+        var useX = this.getAvatar().getX() + dx;
+        var useY = this.getAvatar().getY() + dy;
+        if (this.getMap().getTile(useX, useY) == Game.Tile.exitTile){
+          Game.switchUIMode('switchLevel');
+        }
       }else if (actionBinding.actionKey == "MOVE_DL"){
         dx = -1;
         dy = 1;
@@ -339,8 +335,7 @@ Game.UIMode.gamePlay = {
       this.getAvatar().rememberCoords(seenCells);
     },
     renderAvatarInfo: function (display) {
-      var fg = Game.UIMode.DEFAULT_COLOR_FG;
-      var bg = Game.UIMode.DEFAULT_COLOR_BG;
+      display.clear();
       display.drawText(1,2, Game.UIMode.DEFAULT_COLOR_STR + "avatar x: "+this.getAvatar().getX());
       display.drawText(1,3, Game.UIMode.DEFAULT_COLOR_STR + "avatar y: "+this.getAvatar().getY());
       display.drawText(1,4, Game.UIMode.DEFAULT_COLOR_STR + "Health: " + this.getAvatar().getCurHp() + "/" + this.getAvatar().getMaxHp());
@@ -352,6 +347,9 @@ Game.UIMode.gamePlay = {
       display.drawText(1,11, Game.UIMode.DEFAULT_COLOR_STR + "You have " +this.getAvatar().getSkillPoints()+ " skill points.")
       if (this.getAvatar().getSkillPoints()){
         display.drawText(1,13, Game.UIMode.DEFAULT_COLOR_STR + "Press [l] to spend your skill points.")
+      }
+      if (this.attr._exitSpawned){
+        display.drawText(1,16, Game.UIMode.DEFAULT_COLOR_STR + "Proceed to the next level at " + this.getMap().attr._exit.x + ", " + this.getMap().attr._exit.y + ".");
       }
     },
     moveAvatar: function (pdx,pdy) {
@@ -379,6 +377,17 @@ Game.UIMode.gamePlay = {
       this.setCameraToAvatar();
       this.getMap().populateEnemies();
       this.getMap().addBooty();
+    },
+    setUpNewLevel: function(){
+      Game.Scheduler.clear();
+      this.attr._level++;
+      this.setMap(new Game.Map('caves1'));
+      this.getMap().addEntity(this.getAvatar(), this.getMap().getRandomWalkableLocation());
+      this.setCameraToAvatar();
+      this.getMap().populateEnemies();
+      this.getMap().addBooty();
+      this.attr._exitSpawned = false;
+      Game.Scheduler.add(this.getAvatar(), true, 1);
     },
     toJSON: function() {
       return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
@@ -409,8 +418,13 @@ Game.UIMode.gameLose = {
     exit: function() {
 
     },
-    handleInput: function(){
+    handleInput: function(evtType, evt){
+      var actionBinding = Game.KeyBinding.getInputBinding(eventType, evt);
+      if (!actionBinding || actionBinding.actionKey == 'CANCEL') { return false; }
 
+      if (actionBinding.actionKey == "PERSISTENCE"){
+        Game.switchUIMode("gamePersistence");
+      }
     },
     renderOnMain: function(display){
       display.clear();
@@ -713,4 +727,39 @@ Game.UIMode.inventoryMenu = {
         display.drawText(0, i, Game.UIMode.DEFAULT_COLOR_STR +i+ " - " + this.inventoryArray[i + this._menuY].name + " (" + this.inventoryArray[i + this._menuY].items.length + ")");
       }
     }
+};
+
+Game.UIMode.switchLevel = {
+    _animationOver: false,
+    enter: function(){
+      this._animationOver = false;
+      Game.renderAll();
+    },
+    exit: function() {
+
+    },
+    handleInput: function(evtType, evt){
+      if (this._animationOver){
+        Game.switchUIMode("gamePlay");
+      }
+    },
+    renderOnMain: function(display){
+      display.clear();
+      if (true){
+        Game.UIMode.gamePlay.setUpNewLevel();
+        Game.UIMode.gamePlay.getMap().spawnBoss();
+        Game.util.drawASCIIText(display, Game.ASCII.you.centerY, Game.ASCII.you.centerX, Game.ASCII.you.text);
+        Game.util.drawASCIIText(display, Game.ASCII.have.centerY, Game.ASCII.have.centerX, Game.ASCII.have.text);
+        Game.util.drawASCIIText(display, Game.ASCII.summoned.centerY, Game.ASCII.summoned.centerX, Game.ASCII.summoned.text);
+        var boss = Game.ASCII[Game.BOSSES[Math.floor(ROT.RNG.getUniform() * Game.BOSSES.length)]];
+        setTimeout(function(){display.clear(); Game.util.drawASCIIText(display, boss.centerY, boss.centerX, boss.text); Game.UIMode.animationOver()}, 3000);
+      }else{
+        display.drawText(0, 0, Game.UIMode.DEFAULT_COLOR_STR + "You escape the republicans this time...");
+      }
+    }
+
+};
+
+Game.UIMode.animationOver = function(){
+  Game.UIMode.switchLevel._animationOver = true;
 };

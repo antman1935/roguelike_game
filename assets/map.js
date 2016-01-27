@@ -13,12 +13,14 @@ Game.Map = function (mapTileSetName, presetId) {
     _entitiesByLocation: {},
     _locationsByEntity: {},
     _itemsByLocation: {},
-    _removedWalls: {}
+    _removedWalls: {},
+    _exit: undefined
   };
 
   this._fov = null;
   this.setUpFov();
 
+  Game.DATASTORE.MAP = {};
   Game.DATASTORE.MAP[this.attr._id] = this;
 };
 
@@ -93,6 +95,9 @@ Game.Map.prototype.getTile = function (x_or_xy,y) {
   if (this.attr._removedWalls[useX+","+useY]){
     return Game.Tile.floorTile;
   }
+  if (this.attr._exit !== undefined && this.attr._exit.x == useX && this.attr._exit.y == useY){
+    return Game.Tile.exitTile;
+  }
   return this._tiles[useX][useY] || Game.Tile.nullTile;
 };
 
@@ -133,6 +138,9 @@ Game.Map.prototype.renderOn = function (display,camX,camY, renderOptions) {
         }
         if (this.attr._removedWalls[mapCoord]){
           tile = Game.Tile.floorTile;
+        }
+        if (this.attr._exit !== undefined && this.attr._exit.x == mapPos.x && this.attr._exit.y == mapPos.y){
+          tile = Game.Tile.exitTile;
         }
         tile.draw(display,x,y,isMasked);
       }
@@ -343,3 +351,12 @@ Game.Map.prototype.addBooty = function(){
     count++;
   }
 };
+
+Game.Map.prototype.spawnExit = function(){
+  this.attr._exit = this.getRandomWalkableLocation();
+  Game.renderAll();
+};
+
+Game.Map.prototype.spawnBoss = function(){
+  this.addEntity(Game.EntityGenerator.create("boss"), this.getRandomWalkableLocation());
+}

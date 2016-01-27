@@ -230,6 +230,9 @@ Game.KeyBinding = {
     CANCEL          : {action_group:'meta' ,guid :Game.util.uniqueId() ,ordering:1 ,short:'cancel'   ,long:'cancel/close the current action/screen',
       all: {label:'Esc' ,inputMatch:ROT.VK_ESCAPE     ,inputType:'keydown' ,inputMetaShift:false ,inputMetaCtrl:false}
     },
+    EXIT          : {action_group:'meta' ,guid :Game.util.uniqueId() ,ordering:1 ,short:'exit'   ,long:'when standing on an exit, exit the game',
+      all: {label:'E' ,inputMatch:ROT.VK_E     ,inputType:'keydown' ,inputMetaShift:true ,inputMetaCtrl:false}
+    },
 
     INVENTORY : {action_group:'meta', guid:Game.util.uniqueId(), ordering:4, short:"inventory menu", long:'Look at all your booty from devil hunting',
       all: {label:'i', inputMatch:ROT.VK_I, inputType:'keydown', inputMetaShift:false, inputMetaCtrl: false}

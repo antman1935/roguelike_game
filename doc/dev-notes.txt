@@ -15,22 +15,18 @@ arrival.
 
 Things to implement:
 
+Move between levels:
+Only one way. Certain level is reached, gate opens, maybe animated?
+
 Boss Generation:
 This won't be hard to implement, just a random chance of him spawning, but I
 want the notification to be detailed, probably an ASCII drawing
 
-Inventory and enemy drops:
-Both of these things can be handled with a single mixin. When the player walks
-over the corpse of an enemy (a red 'X'), a prompt asking the user if he'd like
-to scavenge will appear. When the user accepts this prompt, a new ui mode will
-open displaying the contents of the the user's inventor on the right, and the
-enemy's inventory on the left, where every item will be labeled with sequential
-numbers so that they can be selected to be moved over. Storage of items in the
-mixin will be simply done with
-
 Armor / Weapon / Magic equipping system:
 Another entity mixin that'll just hold the currently equipped items and
 functionality for equipping and unequipping items.
+
+*UPDATE: armor and weapons working and equippable, need equipment menu.
 
 Ranged attacks:
 Could be triggered with shift + numpad keys. Whether or not the enemy dodges
@@ -39,12 +35,6 @@ skill system now). The movement of the projectile will be animated by moving the
 projectile in the same direction by one until an enemy or a wall is hit.
 
 Magic attacks:
-
-Action Messages(inspired by Brogue):
-On weapon items, store an action phrase (i.e. "slashed, bashed, axed") so that
-when the user attacks and is attacked, the message displays something like:
-  player_name slashed moss, -3hp
-  moss attacked you, -1hp
 
 Buff System:
 Two types of buffs:

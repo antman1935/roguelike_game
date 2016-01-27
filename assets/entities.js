@@ -73,3 +73,17 @@ Game.EntityGenerator.learn({
   attackActionDuration: 3000,
   mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
 });
+
+Game.EntityGenerator.learn({
+  name: 'boss',
+  chr:'♆',
+  fg:'#f55',
+  exp: 100,
+  maxHp: 10,
+  sightRadius: 5,
+  attackPower: 5,
+  strength: 5,
+  wanderChaserActionDuration: 1200,
+  attackActionDuration: 3000,
+  mixins: ["Inventory", "Equipped", "EnemySkills", "HitPoints", "Sight", "WanderChaserActor", "WalkerCorporeal", "MeleeAttacker", "MeleeDefender"]
+});
